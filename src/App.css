@@ -1,0 +1,20 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* 禁用默认图片样式压缩 */
+img {
+  max-width: none;
+  max-height: none;
+}

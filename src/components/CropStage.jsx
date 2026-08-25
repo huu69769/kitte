@@ -26,37 +26,80 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
-// 生成齿孔路径
-function buildPerfPath(W, H) {
+// 在四条边上清除齿孔圆形区域
+function cutPerforations(ctx, W, H) {
   const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
   const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
   const stepX = W / nx,
     stepY = H / ny;
   const r = Math.min(stepX, stepY) * PERF.depth;
-  const seg = [];
+
+  ctx.fillStyle = 'rgba(0,0,0,1)';
+  ctx.globalCompositeOperation = 'destination-out';
+
+  // 上边
   for (let i = 0; i < nx; i++) {
-    const x = i * stepX;
-    seg.push(['L', x, 0]);
-    seg.push(['A', r, r, 0, 0, 1, x + stepX, 0]);
+    const x = (i + 0.5) * stepX;
+    ctx.beginPath();
+    ctx.arc(x, 0, r, 0, Math.PI * 2);
+    ctx.fill();
   }
+  // 下边
+  for (let i = 0; i < nx; i++) {
+    const x = (i + 0.5) * stepX;
+    ctx.beginPath();
+    ctx.arc(x, H, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // 左边
   for (let i = 0; i < ny; i++) {
-    const y = i * stepY;
-    seg.push(['L', W, y]);
-    seg.push(['A', r, r, 0, 0, 1, W, y + stepY]);
+    const y = (i + 0.5) * stepY;
+    ctx.beginPath();
+    ctx.arc(0, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-  for (let i = nx; i > 0; i--) {
-    const x = i * stepX;
-    seg.push(['L', x, H]);
-    seg.push(['A', r, r, 0, 0, 1, x - stepX, H]);
+  // 右边
+  for (let i = 0; i < ny; i++) {
+    const y = (i + 0.5) * stepY;
+    ctx.beginPath();
+    ctx.arc(W, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-  for (let i = ny; i > 0; i--) {
-    const y = i * stepY;
-    seg.push(['L', 0, y]);
-    seg.push(['A', r, r, 0, 0, 1, 0, y - stepY]);
+
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+// 绘制齿孔轮廓线
+function drawPerfOutline(ctx, W, H) {
+  const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
+  const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
+  const stepX = W / nx,
+    stepY = H / ny;
+  const r = Math.min(stepX, stepY) * PERF.depth;
+
+  ctx.strokeStyle = 'rgba(0,0,0,.14)';
+  ctx.lineWidth = 1.5;
+
+  // 上下边
+  for (let i = 0; i < nx; i++) {
+    const x = (i + 0.5) * stepX;
+    ctx.beginPath();
+    ctx.arc(x, 0, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, H, r, 0, Math.PI * 2);
+    ctx.stroke();
   }
-  let d = 'M 0 0 ';
-  seg.forEach((p) => (d += p.join(' ') + ' '));
-  return d + 'Z';
+  // 左右边
+  for (let i = 0; i < ny; i++) {
+    const y = (i + 0.5) * stepY;
+    ctx.beginPath();
+    ctx.arc(0, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(W, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 }
 
 export default function CropStage({ onPress }) {
@@ -227,14 +270,9 @@ export default function CropStage({ onPress }) {
     out.width = outW;
     out.height = outH;
     const octx = out.getContext('2d');
-    const path = new Path2D(buildPerfPath(outW, outH));
-    octx.save();
-    octx.clip(path);
     octx.drawImage(base, 0, 0);
-    octx.restore();
-    octx.strokeStyle = 'rgba(0,0,0,.14)';
-    octx.lineWidth = 2;
-    octx.stroke(path);
+    cutPerforations(octx, outW, outH);
+    drawPerfOutline(octx, outW, outH);
 
     const stampUrl = out.toDataURL('image/png');
 
@@ -244,10 +282,7 @@ export default function CropStage({ onPress }) {
     thumb.width = thumbSize;
     thumb.height = Math.round(thumbSize * (outH / outW));
     const tctx = thumb.getContext('2d');
-    tctx.save();
-    tctx.clip(new Path2D(buildPerfPath(thumb.width, thumb.height)));
     tctx.drawImage(out, 0, 0, thumb.width, thumb.height);
-    tctx.restore();
     const thumbUrl = thumb.toDataURL('image/png');
 
     onPress({ stampUrl, thumbUrl, size: size.label, sizeKey });

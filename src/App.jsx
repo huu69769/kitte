@@ -11,19 +11,24 @@ function App() {
   const nextNo = { current: 1 };
 
   useEffect(() => {
-    requestPersistent();
-    initAlbum();
+    const init = async () => {
+      try {
+        await requestPersistent();
+        const albums = await getAllAlbums();
+        if (albums.length === 0) {
+          const newAlbum = await createAlbum();
+          setAlbum(newAlbum);
+        } else {
+          setAlbum(albums[0]);
+        }
+      } catch (err) {
+        console.error('初始化失败:', err);
+        // 降级方案：不依赖 IndexedDB，全用内存
+        setAlbum({ id: 'temp', title: '默认集邮册', stampIds: [] });
+      }
+    };
+    init();
   }, []);
-
-  const initAlbum = async () => {
-    const albums = await getAllAlbums();
-    if (albums.length === 0) {
-      const newAlbum = await createAlbum();
-      setAlbum(newAlbum);
-    } else {
-      setAlbum(albums[0]);
-    }
-  };
 
   const handlePress = ({ stampUrl, thumbUrl, size, sizeKey }) => {
     const stamp = {

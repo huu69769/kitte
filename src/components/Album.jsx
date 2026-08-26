@@ -148,14 +148,40 @@ export default function Album({ stamps = [] }) {
           maxWidth: 1200,
           height: CONTAINER_HEIGHT,
           margin: '0 auto',
-          background: theme.asset.kraftPaper?.[0] || theme.bg,
-          backgroundColor: theme.bg,
-          backgroundSize: 'cover',
-          border: `1px solid ${theme.line}`,
-          borderRadius: 4,
-          boxShadow: `inset 0 0 20px rgba(0,0,0,0.05)`,
-          // 中缝线装本视觉
-          backgroundImage: `linear-gradient(90deg, transparent 49.5%, ${theme.line} 49.5%, ${theme.line} 50.5%, transparent 50.5%)`,
+          backgroundColor: '#cfc4b8',
+          // 牛皮纸纹理和中缝线
+          backgroundImage: `
+            /* 顶部-底部渐变（光影） */
+            linear-gradient(180deg, rgba(255,255,255,.15) 0%, transparent 20%, transparent 80%, rgba(0,0,0,.08) 100%),
+            /* 细微纹理 */
+            repeating-linear-gradient(
+              0deg,
+              transparent,
+              transparent 1px,
+              rgba(0,0,0,.015) 1px,
+              rgba(0,0,0,.015) 2px
+            ),
+            repeating-linear-gradient(
+              90deg,
+              transparent,
+              transparent 1px,
+              rgba(0,0,0,.01) 1px,
+              rgba(0,0,0,.01) 2px
+            ),
+            /* 中缝线 - 左右页面渐变 */
+            linear-gradient(to right, #c5b9ac 0%, #cfc4b8 35%, #d4ccc0 48%, #d4ccc0 52%, #cfc4b8 65%, #c5b9ac 100%)
+          `,
+          backgroundSize: '100% 100%, 100% 100%, 100% 100%, 100% 100%',
+          // 中缝线和边缘的精细阴影
+          boxShadow: `
+            inset 0 1px 3px rgba(255,255,255,.3),
+            inset 0 -1px 3px rgba(0,0,0,.1),
+            inset 599px 0 8px -4px rgba(0,0,0,.06),
+            inset 601px 0 8px -4px rgba(0,0,0,.06),
+            0 12px 28px rgba(0,0,0,0.15)
+          `,
+          border: 'none',
+          borderRadius: 14,
           overflow: 'hidden',
           touchAction: 'none',
           userSelect: 'none',

@@ -7,7 +7,7 @@ export const ASSET = {
   // 集邮册内页 - 做旧牛皮纸（2-3张，横图双页比例）
   // 使用：集邮册背景
   kraftPaper: [
-    '/niupizhi.png',           // 暖调复古 - 已生成
+    '/kitte/niupizhi.png',     // 暖调复古 - 已生成
     null,                      // 清新明亮 - 待生成
     null,                      // 其他皮肤 - 待生成
   ],

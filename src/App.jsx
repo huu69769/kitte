@@ -56,8 +56,8 @@ function App() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '28px 16px 64px',
-        gap: 20,
+        padding: '32px 16px 80px',
+        gap: 28,
       }}
     >
       {/* 标题 */}
@@ -68,22 +68,24 @@ function App() {
           width: '100%',
           maxWidth: 620,
           alignItems: 'center',
+          borderBottom: `1px solid ${theme.line}`,
+          paddingBottom: 20,
         }}
       >
         <div
           style={{
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: 600,
-            letterSpacing: 4,
-            color: theme.dim,
+            letterSpacing: 3,
+            color: theme.ink,
             textTransform: 'uppercase',
           }}
         >
-          Stamp Works · 切手工房
+          切手工房
         </div>
         {album && (
-          <div style={{ fontSize: 13, color: theme.gold }}>
-            集邮册 · {album.title}
+          <div style={{ fontSize: 11, color: theme.dim, letterSpacing: 1 }}>
+            {album.title}
           </div>
         )}
       </div>

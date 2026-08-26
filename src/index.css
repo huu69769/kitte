@@ -5,7 +5,7 @@
 :root {
   font-size: 16px;
   font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -18,26 +18,29 @@ html, body, #root {
 }
 
 body {
-  background: #2b2d31;
-  color: #e8e6e1;
+  background: #f5f1e8;
+  color: #3d2b1f;
+  letter-spacing: 0.3px;
 }
 
 button {
   font-family: inherit;
   font-size: inherit;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  font-weight: 500;
 }
 
 button:hover:not(:disabled) {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.15);
 }
 
 button:active:not(:disabled) {
-  opacity: 0.8;
+  transform: translateY(0);
 }
 
 button:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -50,7 +53,6 @@ input[type="range"]:disabled {
   opacity: 0.5;
 }
 
-/* 禁用默认图片样式压缩 */
 img {
   max-width: none;
   max-height: none;

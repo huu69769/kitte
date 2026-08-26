@@ -24,10 +24,10 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
   return (
     <>
       {/* 暂存台面板 */}
-      <div style={{ width: '100%', maxWidth: 620, marginTop: 4 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-          <div style={{ fontSize: 11, letterSpacing: 2, color: theme.dim, textTransform: 'uppercase' }}>暂存台</div>
-          <div style={{ fontSize: 11, color: trayFull ? theme.accent : theme.dim }}>
+      <div style={{ width: '100%', maxWidth: 620, marginTop: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
+          <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', fontWeight: 600 }}>暂存台</div>
+          <div style={{ fontSize: 11, color: trayFull ? theme.accent : theme.dim, fontWeight: 500 }}>
             {tray.length} / {TRAY_LIMIT}
           </div>
         </div>
@@ -35,13 +35,14 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
         {tray.length === 0 ? (
           <div
             style={{
-              border: `1px dashed ${theme.line}`,
-              borderRadius: 10,
-              padding: '26px 20px',
+              border: `1.5px dashed ${theme.line}`,
+              borderRadius: 8,
+              padding: '28px 20px',
               textAlign: 'center',
               color: theme.dim,
               fontSize: 12,
               lineHeight: 1.8,
+              background: theme.bgLight,
             }}
           >
             压印后邮票先落在这里<br />
@@ -78,15 +79,15 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
                         }}
                         style={{
                           position: 'absolute',
-                          top: -6,
-                          right: -6,
-                          width: 20,
-                          height: 20,
+                          top: -7,
+                          right: -7,
+                          width: 22,
+                          height: 22,
                           borderRadius: '50%',
-                          background: sel ? theme.gold : 'rgba(0,0,0,.5)',
-                          color: sel ? '#2b2d31' : '#fff',
-                          border: `1px solid ${sel ? theme.gold : theme.line}`,
-                          fontSize: 11,
+                          background: sel ? theme.accent : 'rgba(61, 43, 31, 0.3)',
+                          color: sel ? '#faf7f1' : 'transparent',
+                          border: `1.5px solid ${sel ? theme.accent : theme.line}`,
+                          fontSize: 12,
                           fontWeight: 700,
                           cursor: 'pointer',
                           display: 'flex',
@@ -104,22 +105,22 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
             </div>
 
             {/* 操作按钮 */}
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 8 }}>
               <button
                 onClick={archiveSelected}
                 disabled={selCount === 0}
                 style={{
-                  background: selCount ? theme.gold : theme.panel,
-                  color: selCount ? '#2b2d31' : theme.dim,
-                  border: `1px solid ${selCount ? theme.gold : theme.line}`,
-                  borderRadius: 8,
-                  padding: '9px 16px',
+                  background: selCount ? theme.accent : 'transparent',
+                  color: selCount ? '#faf7f1' : theme.dim,
+                  border: `1.5px solid ${selCount ? theme.accent : theme.line}`,
+                  borderRadius: 6,
+                  padding: '9px 14px',
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: selCount ? 'pointer' : 'not-allowed',
                 }}
               >
-                收进集邮册{selCount ? `（${selCount}）` : ''}
+                {selCount ? `收进集邮册（${selCount}）` : '收进集邮册'}
               </button>
               {selCount > 0 && (
                 <button
@@ -127,14 +128,14 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
                   style={{
                     background: 'transparent',
                     color: theme.dim,
-                    border: `1px solid ${theme.line}`,
-                    borderRadius: 8,
-                    padding: '9px 14px',
-                    fontSize: 13,
+                    border: `1.5px solid ${theme.line}`,
+                    borderRadius: 6,
+                    padding: '8px 12px',
+                    fontSize: 12,
                     cursor: 'pointer',
                   }}
                 >
-                  取消选择
+                  清空
                 </button>
               )}
               <span style={{ fontSize: 11, color: theme.dim, marginLeft: 'auto' }}>点邮票=放大 · 点右上角=勾选</span>
@@ -150,14 +151,15 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(15,16,18,.82)',
+            background: 'rgba(61, 43, 31, 0.85)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 18,
+            gap: 20,
             zIndex: 60,
             cursor: 'zoom-out',
+            backdropFilter: 'blur(2px)',
           }}
         >
           <img
@@ -167,12 +169,12 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
             style={{
               maxWidth: '80vw',
               maxHeight: '66vh',
-              borderRadius: 4,
-              filter: 'drop-shadow(0 18px 40px rgba(0,0,0,.6))',
+              borderRadius: 6,
+              filter: 'drop-shadow(0 20px 40px rgba(61, 43, 31, 0.4))',
             }}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }} onClick={(e) => e.stopPropagation()}>
-            <span style={{ fontSize: 13, letterSpacing: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, color: '#faf7f1' }} onClick={(e) => e.stopPropagation()}>
+            <span style={{ fontSize: 13, letterSpacing: 0.5 }}>
               No.{String(viewing.no).padStart(3, '0')} · {viewing.size}
             </span>
             <button
@@ -182,10 +184,10 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
               }}
               style={{
                 background: 'transparent',
-                color: '#d98',
-                border: '1px solid #a55',
-                borderRadius: 6,
-                padding: '6px 14px',
+                color: '#d4a574',
+                border: '1px solid #d4a574',
+                borderRadius: 5,
+                padding: '6px 12px',
                 fontSize: 12,
                 cursor: 'pointer',
               }}
@@ -195,11 +197,11 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
             <button
               onClick={() => setViewing(null)}
               style={{
-                background: theme.panel,
-                color: theme.ink,
-                border: `1px solid ${theme.line}`,
-                borderRadius: 6,
-                padding: '6px 14px',
+                background: 'transparent',
+                color: '#faf7f1',
+                border: '1px solid #faf7f1',
+                borderRadius: 5,
+                padding: '6px 12px',
                 fontSize: 12,
                 cursor: 'pointer',
               }}

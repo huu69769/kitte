@@ -291,7 +291,7 @@ export default function CropStage({ onPress }) {
   const zoomRel = view.base ? view.scale / view.base : 1;
 
   return (
-    <div style={{ width: '100%', maxWidth: 620, display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
+    <div style={{ width: '100%', maxWidth: 620, display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
       {/* 取景舞台 */}
       <div
         ref={stageRef}
@@ -303,9 +303,9 @@ export default function CropStage({ onPress }) {
           position: 'relative',
           width: STAGE,
           height: STAGE,
-          background: theme.panel,
-          border: `1px solid ${theme.line}`,
-          borderRadius: 12,
+          background: theme.bgLight,
+          border: `2px solid ${theme.line}`,
+          borderRadius: 8,
           overflow: 'hidden',
           touchAction: 'none',
           cursor: hasImg ? 'grab' : 'default',
@@ -313,6 +313,7 @@ export default function CropStage({ onPress }) {
           display: hasImg ? 'block' : 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          boxShadow: `inset 0 2px 6px rgba(61, 43, 31, 0.08)`,
         }}
       >
         {!hasImg && (
@@ -359,16 +360,16 @@ export default function CropStage({ onPress }) {
       </div>
 
       {/* 右侧控制面板 */}
-      <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 18, opacity: hasImg ? 1 : 0.85 }}>
+      <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 20, opacity: hasImg ? 1 : 0.8 }}>
         <button
           onClick={() => fileRef.current.click()}
           style={{
-            border: `1px solid ${theme.line}`,
-            borderRadius: 8,
-            padding: 10,
+            border: `1.5px solid ${theme.gold}`,
+            borderRadius: 6,
+            padding: '11px 14px',
             fontSize: 13,
             cursor: 'pointer',
-            background: theme.panel,
+            background: 'transparent',
             color: theme.ink,
           }}
         >
@@ -378,8 +379,8 @@ export default function CropStage({ onPress }) {
 
         {/* 尺寸选择 */}
         <div>
-          <div style={{ fontSize: 11, letterSpacing: 2, color: theme.dim, textTransform: 'uppercase', marginBottom: 8 }}>邮票尺寸 (mm)</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>邮票尺寸</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
             {SIZES.map((s) => {
               const active = s.key === sizeKey;
               return (
@@ -387,11 +388,11 @@ export default function CropStage({ onPress }) {
                   key={s.key}
                   onClick={() => setSizeKey(s.key)}
                   style={{
-                    background: active ? '#45332e' : theme.panel,
-                    color: active ? theme.ink : theme.dim,
-                    border: `1px solid ${active ? theme.accent : theme.line}`,
-                    borderRadius: 8,
-                    padding: '10px 14px',
+                    background: active ? theme.panel : 'transparent',
+                    color: active ? theme.accent : theme.dim,
+                    border: `1.5px solid ${active ? theme.accent : theme.line}`,
+                    borderRadius: 6,
+                    padding: '9px 12px',
                     fontSize: 13,
                     cursor: 'pointer',
                     textAlign: 'left',
@@ -411,8 +412,8 @@ export default function CropStage({ onPress }) {
         </div>
 
         {/* 缩放滑块 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, color: theme.dim, fontSize: 12 }}>
-          <span>缩放</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: theme.dim, fontSize: 12 }}>
+          <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, fontSize: 10 }}>缩放</span>
           <input
             type="range"
             min={1}
@@ -421,7 +422,7 @@ export default function CropStage({ onPress }) {
             value={zoomRel}
             onChange={onZoomSlider}
             disabled={!hasImg}
-            style={{ width: '100%', accentColor: theme.accent }}
+            style={{ width: '100%', accentColor: theme.accent, opacity: hasImg ? 1 : 0.5 }}
           />
         </div>
 
@@ -431,18 +432,18 @@ export default function CropStage({ onPress }) {
           disabled={!hasImg}
           style={{
             border: 'none',
-            borderRadius: 8,
-            padding: 12,
+            borderRadius: 6,
+            padding: '13px 16px',
             fontSize: 14,
             cursor: !hasImg ? 'not-allowed' : 'pointer',
             background: theme.accent,
-            color: '#fff',
+            color: '#faf7f1',
             fontWeight: 600,
-            letterSpacing: 3,
-            opacity: !hasImg ? 0.4 : 1,
+            letterSpacing: 2,
+            opacity: !hasImg ? 0.5 : 1,
           }}
         >
-          压 印
+          压印
         </button>
       </div>
     </div>

@@ -17,6 +17,14 @@ const STAMP_WIDTH = 120;  // 缩略图宽度
 const LONG_PRESS_MS = 200;
 const MOVE_THRESHOLD = 6; // px
 
+// 邮票尺寸定义
+const STAMP_SIZES = {
+  '40x30': { w: 40, h: 30 },
+  '30x40': { w: 30, h: 40 },
+  '35x35': { w: 35, h: 35 },
+  '70x50': { w: 70, h: 50 },
+};
+
 export default function Album({ stamps = [] }) {
   const [layout, setLayout] = useState({}); // stampId -> {x, y}
   const [selectedStamp, setSelectedStamp] = useState(null); // 放大查看
@@ -161,6 +169,10 @@ export default function Album({ stamps = [] }) {
         {stamps.map((stamp) => {
           const pos = layout[stamp.id] || { x: 0, y: 0 };
           const isAnimating = draggingId === stamp.id;
+          const stampSize = STAMP_SIZES[stamp.sizeKey] || { w: 40, h: 30 };
+          const aspectRatio = stampSize.w / stampSize.h;
+          const stampHeight = STAMP_WIDTH;
+          const stampDisplayWidth = stampHeight * aspectRatio;
 
           return (
             <div
@@ -170,8 +182,8 @@ export default function Album({ stamps = [] }) {
                 position: 'absolute',
                 left: pos.x,
                 top: pos.y,
-                width: STAMP_WIDTH,
-                height: STAMP_WIDTH,
+                width: stampDisplayWidth,
+                height: stampHeight,
                 cursor: draggingId === stamp.id ? 'grabbing' : 'grab',
                 transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
                 transition: isAnimating ? 'none' : 'transform 0.2s ease-out',
@@ -186,8 +198,7 @@ export default function Album({ stamps = [] }) {
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: 2,
+                  objectFit: 'contain',
                   userSelect: 'none',
                   pointerEvents: 'none',
                   touchAction: 'none',

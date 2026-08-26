@@ -69,41 +69,6 @@ function cutPerforations(ctx, W, H) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-// 生成齿孔路径（用于 clip 和显示）
-function createPerfPath(W, H) {
-  const path = new Path2D();
-  const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
-  const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
-  const stepX = W / nx,
-    stepY = H / ny;
-  const r = Math.min(stepX, stepY) * PERF.depth;
-
-  // 矩形边框
-  path.rect(0, 0, W, H);
-
-  // 上边孔
-  for (let i = 0; i < nx; i++) {
-    const x = (i + 0.5) * stepX;
-    path.arc(x, r, r, 0, Math.PI * 2);
-  }
-  // 下边孔
-  for (let i = 0; i < nx; i++) {
-    const x = (i + 0.5) * stepX;
-    path.arc(x, H - r, r, 0, Math.PI * 2);
-  }
-  // 左边孔
-  for (let i = 0; i < ny; i++) {
-    const y = (i + 0.5) * stepY;
-    path.arc(r, y, r, 0, Math.PI * 2);
-  }
-  // 右边孔
-  for (let i = 0; i < ny; i++) {
-    const y = (i + 0.5) * stepY;
-    path.arc(W - r, y, r, 0, Math.PI * 2);
-  }
-  return { path, r, nx, ny, stepX, stepY };
-}
-
 export default function CropStage({ onPress }) {
   const [sizeKey, setSizeKey] = useState('40x30');
   const [nat, setNat] = useState(null);
@@ -113,7 +78,6 @@ export default function CropStage({ onPress }) {
   const imgElRef = useRef(null);
   const stageRef = useRef(null);
   const fileRef = useRef(null);
-  const frameCanvasRef = useRef(null);
 
   const size = SIZES.find((s) => s.key === sizeKey);
   const frame = computeFrame(size);
@@ -195,20 +159,6 @@ export default function CropStage({ onPress }) {
     });
   }, [sizeKey]); // eslint-disable-line
 
-  // 绘制齿孔边框
-  useEffect(() => {
-    if (!hasImg || !frameCanvasRef.current) return;
-    const canvas = frameCanvasRef.current;
-    canvas.width = frame.w;
-    canvas.height = frame.h;
-    const ctx = canvas.getContext('2d');
-    const perf = createPerfPath(frame.w, frame.h);
-    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 4]);
-    ctx.stroke(perf.path);
-  }, [hasImg, frame.w, frame.h]);
-
   // 拖拽逻辑
   const drag = useRef({ on: false, x: 0, y: 0 });
   const onDown = (e) => {
@@ -282,17 +232,7 @@ export default function CropStage({ onPress }) {
       nat.h * v.scale * k
     );
 
-    // 用齿孔形状裁切邮票
-    const perf = createPerfPath(outW, outH);
-    const out = document.createElement('canvas');
-    out.width = outW;
-    out.height = outH;
-    const octx = out.getContext('2d');
-    octx.save();
-    octx.clip(perf.path, 'evenodd');
-    octx.drawImage(base, 0, 0);
-    octx.restore();
-    const stampUrl = out.toDataURL('image/png');
+    const stampUrl = base.toDataURL('image/png');
 
     // 生成缩略图
     const thumb = document.createElement('canvas');
@@ -300,7 +240,7 @@ export default function CropStage({ onPress }) {
     thumb.width = thumbSize;
     thumb.height = Math.round(thumbSize * (outH / outW));
     const tctx = thumb.getContext('2d');
-    tctx.drawImage(out, 0, 0, thumb.width, thumb.height);
+    tctx.drawImage(base, 0, 0, thumb.width, thumb.height);
     const thumbUrl = thumb.toDataURL('image/png');
 
     onPress({ stampUrl, thumbUrl, size: size.label, sizeKey });
@@ -362,12 +302,15 @@ export default function CropStage({ onPress }) {
           />
         )}
         {hasImg && (
-          <canvas
-            ref={frameCanvasRef}
+          <div
             style={{
               position: 'absolute',
               left: frame.x,
               top: frame.y,
+              width: frame.w,
+              height: frame.h,
+              border: '1.5px dashed rgba(255,255,255,.9)',
+              boxShadow: '0 0 0 9999px rgba(20,21,23,.6)',
               pointerEvents: 'none',
             }}
           />

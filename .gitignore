@@ -1,0 +1,16 @@
+# Vite entry point (generated locally)
+index.html
+
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

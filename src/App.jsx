@@ -98,7 +98,7 @@ function App() {
         )}
       </div>
 
-      {/* 主工作区 - 宽松布局 */}
+      {/* 压印台 */}
       <div
         style={{
           display: 'flex',
@@ -108,15 +108,7 @@ function App() {
           flexWrap: 'wrap',
         }}
       >
-        {/* 取景台 */}
         <CropStage onPress={handlePress} />
-      </div>
-
-      {/* 集邮册 */}
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 1200 }}>
-          <Album stamps={stamps} />
-        </div>
       </div>
 
       {/* 暂存台 */}
@@ -126,6 +118,13 @@ function App() {
           onRemove={handleRemove}
           onAddToAlbum={handleAddToAlbum}
         />
+      </div>
+
+      {/* 集邮册 */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 1200 }}>
+          <Album stamps={stamps} />
+        </div>
       </div>
     </div>
   );

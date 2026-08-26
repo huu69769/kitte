@@ -62,13 +62,13 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
                         alt={`No.${stamp.no}`}
                         onClick={() => setViewing(stamp)}
                         style={{
-                          height: 96,
+                          height: 80,
                           width: 'auto',
-                          borderRadius: 3,
                           cursor: 'zoom-in',
                           outline: sel ? `2px solid ${theme.gold}` : 'none',
                           outlineOffset: 2,
-                          filter: 'drop-shadow(0 4px 10px rgba(0,0,0,.4))',
+                          filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.3))',
+                          objectFit: 'contain',
                         }}
                       />
                       {/* 勾选圆圈 */}

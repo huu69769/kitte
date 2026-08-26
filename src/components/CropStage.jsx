@@ -26,47 +26,42 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
-// 在四条边上清除齿孔圆形区域（符合国际标准规格）
-function cutPerforations(ctx, W, H) {
+// 创建邮票齿孔形状路径
+function createStampPath(W, H) {
   const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
   const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
-  const stepX = W / nx,
-    stepY = H / ny;
+  const stepX = W / nx;
+  const stepY = H / ny;
   const r = Math.min(stepX, stepY) * PERF.depth;
 
-  ctx.fillStyle = 'rgba(0,0,0,1)';
-  ctx.globalCompositeOperation = 'destination-out';
+  const path = new Path2D();
 
-  // 上边：孔中心距离上边缘 r 像素
+  // 外边界
+  path.rect(0, 0, W, H);
+
+  // 齿孔（逆时针挖空）
+  // 上边
   for (let i = 0; i < nx; i++) {
     const x = (i + 0.5) * stepX;
-    ctx.beginPath();
-    ctx.arc(x, r, r, 0, Math.PI * 2);
-    ctx.fill();
+    path.arc(x, r, r, 0, Math.PI * 2, true);
   }
-  // 下边：孔中心距离下边缘 r 像素
+  // 下边
   for (let i = 0; i < nx; i++) {
     const x = (i + 0.5) * stepX;
-    ctx.beginPath();
-    ctx.arc(x, H - r, r, 0, Math.PI * 2);
-    ctx.fill();
+    path.arc(x, H - r, r, 0, Math.PI * 2, true);
   }
-  // 左边：孔中心距离左边缘 r 像素
+  // 左边
   for (let i = 0; i < ny; i++) {
     const y = (i + 0.5) * stepY;
-    ctx.beginPath();
-    ctx.arc(r, y, r, 0, Math.PI * 2);
-    ctx.fill();
+    path.arc(r, y, r, 0, Math.PI * 2, true);
   }
-  // 右边：孔中心距离右边缘 r 像素
+  // 右边
   for (let i = 0; i < ny; i++) {
     const y = (i + 0.5) * stepY;
-    ctx.beginPath();
-    ctx.arc(W - r, y, r, 0, Math.PI * 2);
-    ctx.fill();
+    path.arc(W - r, y, r, 0, Math.PI * 2, true);
   }
 
-  ctx.globalCompositeOperation = 'source-over';
+  return path;
 }
 
 export default function CropStage({ onPress }) {
@@ -232,14 +227,25 @@ export default function CropStage({ onPress }) {
       nat.h * v.scale * k
     );
 
-    const stampUrl = base.toDataURL('image/png');
+    // 应用齿孔裁切 - 创建带齿孔形状的邮票
+    const stampCanvas = document.createElement('canvas');
+    stampCanvas.width = outW;
+    stampCanvas.height = outH;
+    const sctx = stampCanvas.getContext('2d');
+    const stampPath = createStampPath(outW, outH);
+    sctx.clip(stampPath, 'evenodd');
+    sctx.drawImage(base, 0, 0);
 
-    // 生成缩略图
+    const stampUrl = stampCanvas.toDataURL('image/png');
+
+    // 生成缩略图（同样应用齿孔）
     const thumb = document.createElement('canvas');
     const thumbSize = 300;
     thumb.width = thumbSize;
     thumb.height = Math.round(thumbSize * (outH / outW));
     const tctx = thumb.getContext('2d');
+    const thumbPath = createStampPath(thumb.width, thumb.height);
+    tctx.clip(thumbPath, 'evenodd');
     tctx.drawImage(base, 0, 0, thumb.width, thumb.height);
     const thumbUrl = thumb.toDataURL('image/png');
 

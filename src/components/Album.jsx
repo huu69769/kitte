@@ -25,8 +25,8 @@ export default function Album({ stamps = [] }) {
   const dragRef = useRef({ id: null, startX: 0, startY: 0, ox: 0, oy: 0, moveStartTime: 0 });
   const longPressRef = useRef(null);
 
-  // 容器尺寸
-  const CONTAINER_WIDTH = typeof window !== 'undefined' ? window.innerWidth - 40 : 1200;
+  // 容器尺寸（与 CSS 中的 maxWidth 保持一致）
+  const CONTAINER_WIDTH = 1200;
   const CONTAINER_HEIGHT = 600;
 
   // 初始化布局 - 新邮票随机摆放

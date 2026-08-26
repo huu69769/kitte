@@ -24,7 +24,7 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
   return (
     <>
       {/* 暂存台面板 */}
-      <div style={{ width: '100%', maxWidth: 620, marginTop: 8 }}>
+      <div style={{ width: '100%', maxWidth: '100%', paddingLeft: 20, paddingRight: 20, marginTop: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
           <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', fontWeight: 600 }}>暂存台</div>
           <div style={{ fontSize: 11, color: trayFull ? theme.accent : theme.dim, fontWeight: 500 }}>

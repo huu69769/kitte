@@ -56,8 +56,8 @@ function App() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '32px 16px 80px',
-        gap: 28,
+        padding: '40px 20px 100px',
+        gap: 48,
       }}
     >
       {/* 标题 */}
@@ -66,15 +66,15 @@ function App() {
           display: 'flex',
           justifyContent: 'space-between',
           width: '100%',
-          maxWidth: 620,
+          maxWidth: '100%',
           alignItems: 'center',
+          paddingBottom: 24,
           borderBottom: `1px solid ${theme.line}`,
-          paddingBottom: 20,
         }}
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: 600,
             letterSpacing: 3,
             color: theme.ink,
@@ -90,11 +90,24 @@ function App() {
         )}
       </div>
 
-      {/* 取景台 */}
-      <CropStage onPress={handlePress} />
+      {/* 主工作区 - 宽松布局 */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          width: '100%',
+          gap: 60,
+          flexWrap: 'wrap',
+        }}
+      >
+        {/* 取景台 */}
+        <CropStage onPress={handlePress} />
+      </div>
 
       {/* 暂存台 */}
-      <TraySidebar tray={tray} onRemove={handleRemove} />
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <TraySidebar tray={tray} onRemove={handleRemove} />
+      </div>
     </div>
   );
 }

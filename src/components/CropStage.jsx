@@ -291,7 +291,7 @@ export default function CropStage({ onPress }) {
   const zoomRel = view.base ? view.scale / view.base : 1;
 
   return (
-    <div style={{ width: '100%', maxWidth: 620, display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
+    <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
       {/* 取景舞台 */}
       <div
         ref={stageRef}

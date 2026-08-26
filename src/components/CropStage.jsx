@@ -11,7 +11,7 @@ const SIZES = [
 const DPI = 600;
 const mmToPx = (mm) => Math.round((mm / 25.4) * DPI);
 const STAGE = 380;
-const PERF = { count: 1.4, depth: 0.72 };
+const PERF = { count: 0.5, depth: 1.0 };
 
 function computeFrame(size) {
   const pad = 30;
@@ -69,38 +69,7 @@ function cutPerforations(ctx, W, H) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-// 绘制齿孔轮廓线
-function drawPerfOutline(ctx, W, H) {
-  const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
-  const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
-  const stepX = W / nx,
-    stepY = H / ny;
-  const r = Math.min(stepX, stepY) * PERF.depth;
-
-  ctx.strokeStyle = 'rgba(0,0,0,.12)';
-  ctx.lineWidth = 1;
-
-  // 上下边
-  for (let i = 0; i < nx; i++) {
-    const x = (i + 0.5) * stepX;
-    ctx.beginPath();
-    ctx.arc(x, r, r, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(x, H - r, r, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  // 左右边
-  for (let i = 0; i < ny; i++) {
-    const y = (i + 0.5) * stepY;
-    ctx.beginPath();
-    ctx.arc(r, y, r, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(W - r, y, r, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-}
+// 齿孔轮廓线已移除 - 保持邮票边缘干净
 
 export default function CropStage({ onPress }) {
   const [sizeKey, setSizeKey] = useState('40x30');
@@ -272,7 +241,6 @@ export default function CropStage({ onPress }) {
     const octx = out.getContext('2d');
     octx.drawImage(base, 0, 0);
     cutPerforations(octx, outW, outH);
-    drawPerfOutline(octx, outW, outH);
 
     const stampUrl = out.toDataURL('image/png');
 

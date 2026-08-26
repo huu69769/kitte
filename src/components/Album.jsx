@@ -151,16 +151,6 @@ export default function Album({ stamps = [] }) {
           backgroundImage: 'url(/niupizhi.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          // 中缝线和边缘的精细阴影
-          boxShadow: `
-            inset 0 1px 3px rgba(255,255,255,.3),
-            inset 0 -1px 3px rgba(0,0,0,.1),
-            inset 599px 0 8px -4px rgba(0,0,0,.06),
-            inset 601px 0 8px -4px rgba(0,0,0,.06),
-            0 12px 28px rgba(0,0,0,0.15)
-          `,
-          border: 'none',
-          borderRadius: 14,
           overflow: 'hidden',
           touchAction: 'none',
           userSelect: 'none',

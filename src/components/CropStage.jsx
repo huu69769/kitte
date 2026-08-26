@@ -26,42 +26,47 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
-// 创建邮票齿孔形状路径
-function createStampPath(W, H) {
+// 创建邮票齿孔形状路径（使用 destination-out 复合模式）
+function applyStampPerforations(ctx, W, H) {
   const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
   const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
   const stepX = W / nx;
   const stepY = H / ny;
   const r = Math.min(stepX, stepY) * PERF.depth;
 
-  const path = new Path2D();
+  ctx.fillStyle = 'rgba(0,0,0,1)';
+  ctx.globalCompositeOperation = 'destination-out';
 
-  // 外边界
-  path.rect(0, 0, W, H);
-
-  // 齿孔（逆时针挖空）
-  // 上边
+  // 上边齿孔
   for (let i = 0; i < nx; i++) {
     const x = (i + 0.5) * stepX;
-    path.arc(x, r, r, 0, Math.PI * 2, true);
+    ctx.beginPath();
+    ctx.arc(x, r, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-  // 下边
+  // 下边齿孔
   for (let i = 0; i < nx; i++) {
     const x = (i + 0.5) * stepX;
-    path.arc(x, H - r, r, 0, Math.PI * 2, true);
+    ctx.beginPath();
+    ctx.arc(x, H - r, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-  // 左边
+  // 左边齿孔
   for (let i = 0; i < ny; i++) {
     const y = (i + 0.5) * stepY;
-    path.arc(r, y, r, 0, Math.PI * 2, true);
+    ctx.beginPath();
+    ctx.arc(r, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-  // 右边
+  // 右边齿孔
   for (let i = 0; i < ny; i++) {
     const y = (i + 0.5) * stepY;
-    path.arc(W - r, y, r, 0, Math.PI * 2, true);
+    ctx.beginPath();
+    ctx.arc(W - r, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  return path;
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 export default function CropStage({ onPress }) {
@@ -227,16 +232,10 @@ export default function CropStage({ onPress }) {
       nat.h * v.scale * k
     );
 
-    // 应用齿孔裁切 - 创建带齿孔形状的邮票
-    const stampCanvas = document.createElement('canvas');
-    stampCanvas.width = outW;
-    stampCanvas.height = outH;
-    const sctx = stampCanvas.getContext('2d');
-    const stampPath = createStampPath(outW, outH);
-    sctx.clip(stampPath, 'evenodd');
-    sctx.drawImage(base, 0, 0);
+    // 应用齿孔 - 挖出四边的圆形孔
+    applyStampPerforations(bctx, outW, outH);
 
-    const stampUrl = stampCanvas.toDataURL('image/png');
+    const stampUrl = base.toDataURL('image/png');
 
     // 生成缩略图（同样应用齿孔）
     const thumb = document.createElement('canvas');
@@ -244,9 +243,8 @@ export default function CropStage({ onPress }) {
     thumb.width = thumbSize;
     thumb.height = Math.round(thumbSize * (outH / outW));
     const tctx = thumb.getContext('2d');
-    const thumbPath = createStampPath(thumb.width, thumb.height);
-    tctx.clip(thumbPath, 'evenodd');
     tctx.drawImage(base, 0, 0, thumb.width, thumb.height);
+    applyStampPerforations(tctx, thumb.width, thumb.height);
     const thumbUrl = thumb.toDataURL('image/png');
 
     onPress({ stampUrl, thumbUrl, size: size.label, sizeKey });

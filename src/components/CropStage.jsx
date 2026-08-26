@@ -26,7 +26,7 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
-// 在四条边上清除齿孔圆形区域
+// 在四条边上清除齿孔圆形区域（符合国际标准规格）
 function cutPerforations(ctx, W, H) {
   const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
   const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
@@ -37,32 +37,32 @@ function cutPerforations(ctx, W, H) {
   ctx.fillStyle = 'rgba(0,0,0,1)';
   ctx.globalCompositeOperation = 'destination-out';
 
-  // 上边
+  // 上边：孔中心距离上边缘 r 像素
   for (let i = 0; i < nx; i++) {
     const x = (i + 0.5) * stepX;
     ctx.beginPath();
-    ctx.arc(x, 0, r, 0, Math.PI * 2);
+    ctx.arc(x, r, r, 0, Math.PI * 2);
     ctx.fill();
   }
-  // 下边
+  // 下边：孔中心距离下边缘 r 像素
   for (let i = 0; i < nx; i++) {
     const x = (i + 0.5) * stepX;
     ctx.beginPath();
-    ctx.arc(x, H, r, 0, Math.PI * 2);
+    ctx.arc(x, H - r, r, 0, Math.PI * 2);
     ctx.fill();
   }
-  // 左边
+  // 左边：孔中心距离左边缘 r 像素
   for (let i = 0; i < ny; i++) {
     const y = (i + 0.5) * stepY;
     ctx.beginPath();
-    ctx.arc(0, y, r, 0, Math.PI * 2);
+    ctx.arc(r, y, r, 0, Math.PI * 2);
     ctx.fill();
   }
-  // 右边
+  // 右边：孔中心距离右边缘 r 像素
   for (let i = 0; i < ny; i++) {
     const y = (i + 0.5) * stepY;
     ctx.beginPath();
-    ctx.arc(W, y, r, 0, Math.PI * 2);
+    ctx.arc(W - r, y, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -77,27 +77,27 @@ function drawPerfOutline(ctx, W, H) {
     stepY = H / ny;
   const r = Math.min(stepX, stepY) * PERF.depth;
 
-  ctx.strokeStyle = 'rgba(0,0,0,.14)';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(0,0,0,.12)';
+  ctx.lineWidth = 1;
 
   // 上下边
   for (let i = 0; i < nx; i++) {
     const x = (i + 0.5) * stepX;
     ctx.beginPath();
-    ctx.arc(x, 0, r, 0, Math.PI * 2);
+    ctx.arc(x, r, r, 0, Math.PI * 2);
     ctx.stroke();
     ctx.beginPath();
-    ctx.arc(x, H, r, 0, Math.PI * 2);
+    ctx.arc(x, H - r, r, 0, Math.PI * 2);
     ctx.stroke();
   }
   // 左右边
   for (let i = 0; i < ny; i++) {
     const y = (i + 0.5) * stepY;
     ctx.beginPath();
-    ctx.arc(0, y, r, 0, Math.PI * 2);
+    ctx.arc(r, y, r, 0, Math.PI * 2);
     ctx.stroke();
     ctx.beginPath();
-    ctx.arc(W, y, r, 0, Math.PI * 2);
+    ctx.arc(W - r, y, r, 0, Math.PI * 2);
     ctx.stroke();
   }
 }

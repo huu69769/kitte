@@ -244,14 +244,12 @@ export default function CropStage({ onPress }) {
 
     const stampUrl = out.toDataURL('image/png');
 
-    // 生成缩略图（带白色背景以去除透明边框）
+    // 生成缩略图
     const thumb = document.createElement('canvas');
     const thumbSize = 300;
     thumb.width = thumbSize;
     thumb.height = Math.round(thumbSize * (outH / outW));
     const tctx = thumb.getContext('2d');
-    tctx.fillStyle = '#f5f5f5';
-    tctx.fillRect(0, 0, thumb.width, thumb.height);
     tctx.drawImage(out, 0, 0, thumb.width, thumb.height);
     const thumbUrl = thumb.toDataURL('image/png');
 

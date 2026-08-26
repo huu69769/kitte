@@ -148,7 +148,7 @@ export default function Album({ stamps = [] }) {
           maxWidth: 1200,
           height: CONTAINER_HEIGHT,
           margin: '0 auto',
-          backgroundImage: 'url(/niupizhi.png)',
+          backgroundImage: `url(${theme.asset.kraftPaper[0]})`,
           backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',

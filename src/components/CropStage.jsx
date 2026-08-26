@@ -234,15 +234,8 @@ export default function CropStage({ onPress }) {
       nat.h * v.scale * k
     );
 
-    // 应用齿孔
-    const out = document.createElement('canvas');
-    out.width = outW;
-    out.height = outH;
-    const octx = out.getContext('2d');
-    octx.drawImage(base, 0, 0);
-    cutPerforations(octx, outW, outH);
-
-    const stampUrl = out.toDataURL('image/png');
+    // 邮票就是取景框内的内容，完整矩形
+    const stampUrl = base.toDataURL('image/png');
 
     // 生成缩略图
     const thumb = document.createElement('canvas');

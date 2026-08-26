@@ -288,7 +288,6 @@ export default function CropStage({ onPress }) {
     out.width = outW;
     out.height = outH;
     const octx = out.getContext('2d');
-    octx.drawImage(base, 0, 0);
     octx.save();
     octx.clip(perf.path, 'evenodd');
     octx.drawImage(base, 0, 0);

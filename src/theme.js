@@ -1,3 +1,5 @@
+import { ASSET, FONTS, PAPER_TYPES } from './assets';
+
 // 简约巴洛克风格 - 中世纪邮票美学
 export const vintageLetterTheme = {
   // 背景色 - 旧纸张色系
@@ -35,17 +37,14 @@ export const vintageLetterTheme = {
     kai: 'system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", serif',
   },
 
-  // 素材位
-  asset: {
-    kraftPaper: [
-      "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%222400%22 height=%221200%22%3E%3Crect fill=%22%23f5f1e8%22 width=%222400%22 height=%221200%22/%3E%3C/svg%3E')",
-    ],
-    washiTapes: [
-      "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22160%22%3E%3Crect fill=%22%23c9a24b%22 width=%22600%22 height=%22160%22 opacity=%220.5%22/%3E%3C/svg%3E')",
-    ],
-    pressBody: null,
-    pressButton: null,
-  },
+  // 素材位（从 assets.js 导入，可随时替换）
+  asset: ASSET,
+
+  // 字体定义（从 assets.js 导入）
+  fontFamilies: FONTS,
+
+  // 纸质类型（从 assets.js 导入）
+  paperTypes: PAPER_TYPES,
 };
 
 export default vintageLetterTheme;

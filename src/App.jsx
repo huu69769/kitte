@@ -3,11 +3,13 @@ import theme from './theme';
 import { createAlbum, getAllAlbums, createStamp, requestPersistent } from './db';
 import CropStage from './components/CropStage';
 import TraySidebar from './components/TraySidebar';
+import Album from './components/Album';
 import './App.css';
 
 function App() {
   const [tray, setTray] = useState([]);
   const [album, setAlbum] = useState(null);
+  const [stamps, setStamps] = useState([]); // 已收进集邮册的邮票
   const nextNo = { current: 1 };
 
   useEffect(() => {
@@ -44,6 +46,12 @@ function App() {
 
   const handleRemove = (stampId) => {
     setTray((t) => t.filter((s) => s.id !== stampId));
+  };
+
+  const handleAddToAlbum = (stampIds) => {
+    const toAdd = tray.filter((s) => stampIds.includes(s.id));
+    setStamps((prev) => [...prev, ...toAdd]);
+    setTray((t) => t.filter((s) => !stampIds.includes(s.id)));
   };
 
   return (
@@ -104,9 +112,20 @@ function App() {
         <CropStage onPress={handlePress} />
       </div>
 
+      {/* 集邮册 */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 1200 }}>
+          <Album stamps={stamps} />
+        </div>
+      </div>
+
       {/* 暂存台 */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <TraySidebar tray={tray} onRemove={handleRemove} />
+        <TraySidebar
+          tray={tray}
+          onRemove={handleRemove}
+          onAddToAlbum={handleAddToAlbum}
+        />
       </div>
     </div>
   );

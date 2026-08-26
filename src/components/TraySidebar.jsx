@@ -3,7 +3,7 @@ import theme from '../theme';
 
 const TRAY_LIMIT = 20;
 
-export default function TraySidebar({ tray, onRemove, onSelect }) {
+export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
   const [selected, setSelected] = useState({});
   const [viewing, setViewing] = useState(null);
 
@@ -17,7 +17,7 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
   const archiveSelected = () => {
     const ids = Object.keys(selected).filter((k) => selected[k]);
     if (ids.length === 0) return;
-    ids.forEach((id) => onRemove(id));
+    onAddToAlbum(ids);
     setSelected({});
   };
 
@@ -173,10 +173,28 @@ export default function TraySidebar({ tray, onRemove, onSelect }) {
               filter: 'drop-shadow(0 20px 40px rgba(61, 43, 31, 0.4))',
             }}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, color: '#faf7f1' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#faf7f1' }} onClick={(e) => e.stopPropagation()}>
             <span style={{ fontSize: 13, letterSpacing: 0.5 }}>
               No.{String(viewing.no).padStart(3, '0')} · {viewing.size}
             </span>
+            <button
+              onClick={() => {
+                onAddToAlbum([viewing.id]);
+                setViewing(null);
+              }}
+              style={{
+                background: '#c9a24b',
+                color: '#3d2b1f',
+                border: 'none',
+                borderRadius: 5,
+                padding: '6px 12px',
+                fontSize: 12,
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+            >
+              直接收进
+            </button>
             <button
               onClick={() => {
                 onRemove(viewing.id);

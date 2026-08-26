@@ -148,30 +148,9 @@ export default function Album({ stamps = [] }) {
           maxWidth: 1200,
           height: CONTAINER_HEIGHT,
           margin: '0 auto',
-          backgroundColor: '#cfc4b8',
-          // 牛皮纸纹理和中缝线
-          backgroundImage: `
-            /* 顶部-底部渐变（光影） */
-            linear-gradient(180deg, rgba(255,255,255,.15) 0%, transparent 20%, transparent 80%, rgba(0,0,0,.08) 100%),
-            /* 细微纹理 */
-            repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 1px,
-              rgba(0,0,0,.015) 1px,
-              rgba(0,0,0,.015) 2px
-            ),
-            repeating-linear-gradient(
-              90deg,
-              transparent,
-              transparent 1px,
-              rgba(0,0,0,.01) 1px,
-              rgba(0,0,0,.01) 2px
-            ),
-            /* 中缝线 - 左右页面渐变 */
-            linear-gradient(to right, #c5b9ac 0%, #cfc4b8 35%, #d4ccc0 48%, #d4ccc0 52%, #cfc4b8 65%, #c5b9ac 100%)
-          `,
-          backgroundSize: '100% 100%, 100% 100%, 100% 100%, 100% 100%',
+          backgroundImage: 'url(/niupizhi.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           // 中缝线和边缘的精细阴影
           boxShadow: `
             inset 0 1px 3px rgba(255,255,255,.3),

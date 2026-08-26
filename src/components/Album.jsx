@@ -71,7 +71,7 @@ export default function Album({ stamps = [] }) {
 
   // 鼠标/触摸移动
   const onPointerMove = (e) => {
-    const { id, startX, startY, ox, oy, moveStartTime } = dragRef.current;
+    const { id, startX, startY, ox, oy } = dragRef.current;
     if (!id) return;
 
     const rect = containerRef.current.getBoundingClientRect();
@@ -81,13 +81,17 @@ export default function Album({ stamps = [] }) {
     const dy = y - startY;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // 移动超过阈值 = 开始拖动，清除长按
-    if (dist > MOVE_THRESHOLD && !draggingId) {
+    // 移动超过阈值 = 开始拖动
+    if (dist > MOVE_THRESHOLD) {
       clearTimeout(longPressRef.current);
-    }
 
-    // 如果正在拖动，更新位置
-    if (draggingId === id) {
+      // 立即启动拖动（无需等待长按）
+      if (!draggingId) {
+        setDraggingId(id);
+        if (navigator.vibrate) navigator.vibrate(30);
+      }
+
+      // 更新邮票位置
       const newX = Math.max(0, Math.min(CONTAINER_WIDTH - STAMP_WIDTH, ox + dx));
       const newY = Math.max(0, Math.min(CONTAINER_HEIGHT - STAMP_WIDTH, oy + dy));
       setLayout((l) => ({ ...l, [id]: { x: newX, y: newY } }));
@@ -190,6 +194,8 @@ export default function Album({ stamps = [] }) {
                   borderRadius: 2,
                   userSelect: 'none',
                   pointerEvents: 'none',
+                  touchAction: 'none',
+                  WebkitUserDrag: 'none',
                 }}
               />
             </div>

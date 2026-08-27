@@ -26,6 +26,53 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
+// 在邮票边上打齿孔孔（destination-out 方式）
+function applyPerforation(ctx, W, H, toothSize = 40) {
+  const margin = 5; // 距离边缘的距离
+  const nx = Math.max(2, Math.round((W - margin * 2) / toothSize));
+  const ny = Math.max(2, Math.round((H - margin * 2) / toothSize));
+  const stepX = (W - margin * 2) / nx;
+  const stepY = (H - margin * 2) / ny;
+  const r = Math.min(stepX, stepY) * 0.4; // 孔的半径
+
+  ctx.fillStyle = 'rgba(0,0,0,1)';
+  ctx.globalCompositeOperation = 'destination-out';
+
+  // 上边齿孔
+  for (let i = 0; i < nx; i++) {
+    const x = margin + (i + 0.5) * stepX;
+    ctx.beginPath();
+    ctx.arc(x, margin, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 下边齿孔
+  for (let i = 0; i < nx; i++) {
+    const x = margin + (i + 0.5) * stepX;
+    ctx.beginPath();
+    ctx.arc(x, H - margin, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 左边齿孔
+  for (let i = 0; i < ny; i++) {
+    const y = margin + (i + 0.5) * stepY;
+    ctx.beginPath();
+    ctx.arc(margin, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 右边齿孔
+  for (let i = 0; i < ny; i++) {
+    const y = margin + (i + 0.5) * stepY;
+    ctx.beginPath();
+    ctx.arc(W - margin, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.globalCompositeOperation = 'source-over';
+}
+
 // 生成邮票齿孔轮廓 Path2D（Canvas 原生）
 function createStampPath(W, H, toothSize = 10) {
   const nx = Math.max(4, Math.round(W / toothSize));
@@ -253,11 +300,8 @@ export default function CropStage({ onPress }) {
       nat.h * v.scale * k
     );
 
-    // 2) 用齿孔轮廓裁形（只保留齿孔形状的部分）
-    const stampPath = createStampPath(outW, outH, 40);
-    sctx.globalCompositeOperation = 'destination-in';
-    sctx.fill(stampPath);
-    sctx.globalCompositeOperation = 'source-over';
+    // 2) 在邮票边上打齿孔孔
+    applyPerforation(sctx, outW, outH, 40);
 
     const stampUrl = stampCanvas.toDataURL('image/png');
 
@@ -270,10 +314,8 @@ export default function CropStage({ onPress }) {
 
     tctx.drawImage(stampCanvas, 0, 0, thumb.width, thumb.height);
 
-    const thumbPath = createStampPath(thumb.width, thumb.height, 18);
-    tctx.globalCompositeOperation = 'destination-in';
-    tctx.fill(thumbPath);
-    tctx.globalCompositeOperation = 'source-over';
+    const thumbToothSize = Math.round(40 * (thumb.width / outW));
+    applyPerforation(tctx, thumb.width, thumb.height, thumbToothSize);
 
     const thumbUrl = thumb.toDataURL('image/png');
 

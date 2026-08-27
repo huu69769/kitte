@@ -27,43 +27,43 @@ function computeFrame(size) {
 }
 
 // 在邮票边上打齿孔（destination-out）
-function applyStampPerforations(ctx, W, H, toothSize = 40) {
-  const margin = 5;
+function applyStampPerforations(ctx, W, H, toothSize = 50) {
+  const margin = 2;
   const nx = Math.max(2, Math.round((W - margin * 2) / toothSize));
   const ny = Math.max(2, Math.round((H - margin * 2) / toothSize));
   const stepX = (W - margin * 2) / nx;
   const stepY = (H - margin * 2) / ny;
-  const r = Math.min(stepX, stepY) * 0.35; // 孔半径稍小，确保有间距
+  const r = Math.min(stepX, stepY) * 0.42;
 
   ctx.fillStyle = 'rgba(0,0,0,1)';
   ctx.globalCompositeOperation = 'destination-out';
 
-  // 上边齿孔（跳过第一个和最后一个，保留圆形角）
-  for (let i = 1; i < nx - 1; i++) {
+  // 上边齿孔（包括角）
+  for (let i = 0; i < nx; i++) {
     const x = margin + (i + 0.5) * stepX;
     ctx.beginPath();
     ctx.arc(x, margin, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 下边齿孔（跳过第一个和最后一个）
-  for (let i = 1; i < nx - 1; i++) {
+  // 下边齿孔（包括角）
+  for (let i = 0; i < nx; i++) {
     const x = margin + (i + 0.5) * stepX;
     ctx.beginPath();
     ctx.arc(x, H - margin, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 左边齿孔（跳过第一个和最后一个）
-  for (let i = 1; i < ny - 1; i++) {
+  // 左边齿孔（包括角）
+  for (let i = 0; i < ny; i++) {
     const y = margin + (i + 0.5) * stepY;
     ctx.beginPath();
     ctx.arc(margin, y, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 右边齿孔（跳过第一个和最后一个）
-  for (let i = 1; i < ny - 1; i++) {
+  // 右边齿孔（包括角）
+  for (let i = 0; i < ny; i++) {
     const y = margin + (i + 0.5) * stepY;
     ctx.beginPath();
     ctx.arc(W - margin, y, r, 0, Math.PI * 2);

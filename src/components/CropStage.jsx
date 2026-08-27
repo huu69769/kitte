@@ -33,43 +33,55 @@ function createStampPath(W, H, toothSize = 10) {
   const stepX = W / nx;
   const stepY = H / ny;
   const r = Math.min(stepX, stepY) * 0.48;
+  const cornerMargin = r * 1.5; // 角落留出的空间
 
   const path = new Path2D();
 
   // 从左上角开始
   path.moveTo(0, 0);
 
-  // 上边：从左到右
-  path.lineTo(0, 0);
-  for (let i = 0; i < nx; i++) {
-    const cx = (i + 0.5) * stepX;
+  // 上边：从 cornerMargin 到 W - cornerMargin
+  path.lineTo(cornerMargin, 0);
+  const nxCenter = Math.max(2, Math.round((W - cornerMargin * 2) / stepX));
+  const stepXCenter = (W - cornerMargin * 2) / nxCenter;
+  for (let i = 0; i < nxCenter; i++) {
+    const cx = cornerMargin + (i + 0.5) * stepXCenter;
     path.lineTo(cx - r, 0);
     path.arc(cx, 0, r, Math.PI, 0, true);
   }
+  path.lineTo(W - cornerMargin, 0);
   path.lineTo(W, 0);
 
-  // 右边：从上到下
-  for (let i = 0; i < ny; i++) {
-    const cy = (i + 0.5) * stepY;
+  // 右边：从 cornerMargin 到 H - cornerMargin
+  path.lineTo(W, cornerMargin);
+  const nyCenter = Math.max(2, Math.round((H - cornerMargin * 2) / stepY));
+  const stepYCenter = (H - cornerMargin * 2) / nyCenter;
+  for (let i = 0; i < nyCenter; i++) {
+    const cy = cornerMargin + (i + 0.5) * stepYCenter;
     path.lineTo(W, cy - r);
     path.arc(W, cy, r, Math.PI * 1.5, Math.PI * 0.5, true);
   }
+  path.lineTo(W, H - cornerMargin);
   path.lineTo(W, H);
 
-  // 下边：从右到左
-  for (let i = nx - 1; i >= 0; i--) {
-    const cx = (i + 0.5) * stepX;
+  // 下边：从 W - cornerMargin 回到 cornerMargin
+  path.lineTo(W - cornerMargin, H);
+  for (let i = nxCenter - 1; i >= 0; i--) {
+    const cx = cornerMargin + (i + 0.5) * stepXCenter;
     path.lineTo(cx + r, H);
     path.arc(cx, H, r, 0, Math.PI, true);
   }
+  path.lineTo(cornerMargin, H);
   path.lineTo(0, H);
 
-  // 左边：从下到上
-  for (let i = ny - 1; i >= 0; i--) {
-    const cy = (i + 0.5) * stepY;
+  // 左边：从 H - cornerMargin 回到 cornerMargin
+  path.lineTo(0, H - cornerMargin);
+  for (let i = nyCenter - 1; i >= 0; i--) {
+    const cy = cornerMargin + (i + 0.5) * stepYCenter;
     path.lineTo(0, cy + r);
     path.arc(0, cy, r, Math.PI * 0.5, Math.PI * 1.5, true);
   }
+  path.lineTo(0, cornerMargin);
   path.lineTo(0, 0);
 
   path.closePath();
@@ -242,7 +254,7 @@ export default function CropStage({ onPress }) {
     );
 
     // 2) 用齿孔轮廓裁形（只保留齿孔形状的部分）
-    const stampPath = createStampPath(outW, outH, 18);
+    const stampPath = createStampPath(outW, outH, 22);
     sctx.globalCompositeOperation = 'destination-in';
     sctx.fill(stampPath);
     sctx.globalCompositeOperation = 'source-over';

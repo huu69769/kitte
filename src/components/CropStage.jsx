@@ -12,6 +12,7 @@ const DPI = 600;
 const mmToPx = (mm) => Math.round((mm / 25.4) * DPI);
 const STAGE = 380;
 const PERF = { count: 0.5, depth: 1.0 };
+const TOOTH_SIZE = 40;
 
 function computeFrame(size) {
   const pad = 30;
@@ -27,7 +28,7 @@ function computeFrame(size) {
 }
 
 // 在邮票边上打齿孔（destination-out）
-function applyStampPerforations(ctx, W, H, toothSize = 160) {
+function applyStampPerforations(ctx, W, H, toothSize = TOOTH_SIZE) {
   const margin = 1;
   const nx = Math.max(2, Math.round((W - margin * 2) / toothSize));
   const ny = Math.max(2, Math.round((H - margin * 2) / toothSize));
@@ -239,7 +240,7 @@ export default function CropStage({ onPress }) {
     );
 
     // 2) 在边上打齿孔孔（用 destination-out）
-    applyStampPerforations(sctx, outW, outH, 40);
+    applyStampPerforations(sctx, outW, outH, TOOTH_SIZE);
 
     const stampUrl = stampCanvas.toDataURL('image/png');
 

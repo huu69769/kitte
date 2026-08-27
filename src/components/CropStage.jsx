@@ -76,7 +76,7 @@ const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
 
   useImperativeHandle(ref, () => ({
     bake,
-    fileRef,
+    onFile,
     sizeKey,
     setSizeKey,
     zoomRel,

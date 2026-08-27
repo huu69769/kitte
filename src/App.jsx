@@ -12,6 +12,7 @@ function App() {
   const [album, setAlbum] = useState(null);
   const [stamps, setStamps] = useState([]); // 已收进集邮册的邮票
   const cropRef = useRef(null);
+  const fileInputRef = useRef(null);
   const nextNo = { current: 1 };
 
   useEffect(() => {
@@ -114,7 +115,7 @@ function App() {
         {/* 左侧控制面板 */}
         <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 20 }}>
           <button
-            onClick={() => cropRef.current?.fileRef.current?.click()}
+            onClick={() => fileInputRef.current?.click()}
             style={{
               border: `1.5px solid ${theme.gold}`,
               borderRadius: 6,
@@ -127,6 +128,13 @@ function App() {
           >
             {cropRef.current?.hasImg ? '换一张照片' : '上传照片'}
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => cropRef.current?.onFile(e)}
+            style={{ display: 'none' }}
+          />
 
           {/* 尺寸选择 */}
           <div>

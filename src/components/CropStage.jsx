@@ -38,32 +38,32 @@ function applyStampPerforations(ctx, W, H, toothSize = 40) {
   ctx.fillStyle = 'rgba(0,0,0,1)';
   ctx.globalCompositeOperation = 'destination-out';
 
-  // 上边齿孔
-  for (let i = 0; i < nx; i++) {
+  // 上边齿孔（跳过第一个和最后一个，保留圆形角）
+  for (let i = 1; i < nx - 1; i++) {
     const x = margin + (i + 0.5) * stepX;
     ctx.beginPath();
     ctx.arc(x, margin, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 下边齿孔
-  for (let i = 0; i < nx; i++) {
+  // 下边齿孔（跳过第一个和最后一个）
+  for (let i = 1; i < nx - 1; i++) {
     const x = margin + (i + 0.5) * stepX;
     ctx.beginPath();
     ctx.arc(x, H - margin, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 左边齿孔
-  for (let i = 0; i < ny; i++) {
+  // 左边齿孔（跳过第一个和最后一个）
+  for (let i = 1; i < ny - 1; i++) {
     const y = margin + (i + 0.5) * stepY;
     ctx.beginPath();
     ctx.arc(margin, y, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 右边齿孔
-  for (let i = 0; i < ny; i++) {
+  // 右边齿孔（跳过第一个和最后一个）
+  for (let i = 1; i < ny - 1; i++) {
     const y = margin + (i + 0.5) * stepY;
     ctx.beginPath();
     ctx.arc(W - margin, y, r, 0, Math.PI * 2);

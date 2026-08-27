@@ -252,9 +252,6 @@ export default function CropStage({ onPress }) {
 
     tctx.drawImage(stampCanvas, 0, 0, thumb.width, thumb.height);
 
-    const thumbToothSize = Math.round(40 * (thumb.width / outW));
-    applyStampPerforations(tctx, thumb.width, thumb.height, thumbToothSize);
-
     const thumbUrl = thumb.toDataURL('image/png');
 
     onPress({ stampUrl, thumbUrl, size: size.label, sizeKey });

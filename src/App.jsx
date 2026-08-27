@@ -11,6 +11,7 @@ function App() {
   const [tray, setTray] = useState([]);
   const [album, setAlbum] = useState(null);
   const [stamps, setStamps] = useState([]); // 已收进集邮册的邮票
+  const [toast, setToast] = useState(null);
   const cropRef = useRef(null);
   const fileInputRef = useRef(null);
   const nextNo = { current: 1 };
@@ -45,6 +46,8 @@ function App() {
       sizeKey,
     };
     setTray((t) => [...t, stamp]);
+    setToast('已压印，添加到暂存台');
+    setTimeout(() => setToast(null), 2000);
   };
 
   const handleRemove = (stampId) => {
@@ -210,6 +213,36 @@ function App() {
           <Album stamps={stamps} />
         </div>
       </div>
+
+      {/* Toast 提示 */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 40,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: theme.accent,
+            color: '#fff',
+            padding: '12px 24px',
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 1000,
+            animation: 'fadeInOut 2s ease-in-out forwards',
+          }}
+        >
+          {toast}
+          <style>{`
+            @keyframes fadeInOut {
+              0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+              10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+              90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+              100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 }

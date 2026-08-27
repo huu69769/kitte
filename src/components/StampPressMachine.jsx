@@ -46,13 +46,16 @@ export default function StampPressMachine({ cropRef, onPress }) {
           left: "50%",
           width: "38%",
           aspectRatio: "1",
-          transform: "translate(-50%, -50%)",
+          transform: pressed ? "translate(-50%, -50%) scale(0.95)" : "translate(-50%, -50%) scale(1)",
           border: "none",
           cursor: phase === "idle" ? "pointer" : "default",
           padding: 0,
           background: `url('${pressButton}') center/contain no-repeat`,
-          opacity: pressed ? 0.9 : 1,
-          transition: pressed ? "none" : "opacity .12s",
+          boxShadow: pressed
+            ? "inset 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3)"
+            : "0 8px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
+          opacity: 1,
+          transition: pressed ? "none" : "transform 0.08s, box-shadow 0.08s",
         }}
       />
 

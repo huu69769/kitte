@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import theme from './theme';
 import { createAlbum, getAllAlbums, createStamp, requestPersistent } from './db';
 import CropStage from './components/CropStage';
+import StampPressMachine from './components/StampPressMachine';
 import TraySidebar from './components/TraySidebar';
 import Album from './components/Album';
 import './App.css';
@@ -10,6 +11,7 @@ function App() {
   const [tray, setTray] = useState([]);
   const [album, setAlbum] = useState(null);
   const [stamps, setStamps] = useState([]); // 已收进集邮册的邮票
+  const [pendingStamp, setPendingStamp] = useState(null); // 等待压印的邮票
   const nextNo = { current: 1 };
 
   useEffect(() => {
@@ -41,7 +43,14 @@ function App() {
       size,
       sizeKey,
     };
-    setTray((t) => [...t, stamp]);
+    setPendingStamp(stamp);
+  };
+
+  const handleMachinePress = () => {
+    if (pendingStamp) {
+      setTray((t) => [...t, pendingStamp]);
+      setPendingStamp(null);
+    }
   };
 
   const handleRemove = (stampId) => {
@@ -110,6 +119,13 @@ function App() {
       >
         <CropStage onPress={handlePress} />
       </div>
+
+      {/* 压印机 - 仅在有待压印邮票时显示 */}
+      {pendingStamp && (
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <StampPressMachine onPress={handleMachinePress} />
+        </div>
+      )}
 
       {/* 暂存台 */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>

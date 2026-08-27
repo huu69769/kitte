@@ -26,15 +26,15 @@ export default function StampPressMachine({ cropRef, onPress }) {
     <div
       style={{
         position: "relative",
-        width: 380,
-        aspectRatio: "1",
+        height: 380,
+        width: "auto",
         transform: shake ? "translateY(2px)" : "translateY(0)",
         transition: "transform .04s",
         cursor: phase === "idle" ? "pointer" : "default",
       }}
     >
       {/* 机身 */}
-      <img src={pressBody} alt="press body" style={{ width: "100%", height: "100%", display: "block" }} />
+      <img src={pressBody} alt="press body" style={{ height: "100%", width: "auto", display: "block" }} />
 
       {/* 按钮 - 固定位置 */}
       <button

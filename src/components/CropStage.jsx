@@ -398,6 +398,9 @@ const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
 
       </div>
       )}
+    </div>
+  );
+});
 
 CropStage.displayName = 'CropStage';
 export default CropStage;

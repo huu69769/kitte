@@ -12,7 +12,7 @@ const DPI = 600;
 const mmToPx = (mm) => Math.round((mm / 25.4) * DPI);
 const STAGE = 380;
 const PERF = { count: 0.5, depth: 1.0 };
-const TOOTH_SIZE = 45;
+const TOOTH_SIZE = 46;
 
 function computeFrame(size) {
   const pad = 30;

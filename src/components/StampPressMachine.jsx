@@ -48,6 +48,7 @@ export default function StampPressMachine({ cropRef, onPress }) {
           aspectRatio: "1",
           transform: pressed ? "translate(-50%, -50%) scale(0.95)" : "translate(-50%, -50%) scale(1)",
           border: "none",
+          outline: "none",
           cursor: phase === "idle" ? "pointer" : "default",
           padding: 0,
           background: `url('${pressButton}') center/contain no-repeat`,

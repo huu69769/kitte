@@ -42,9 +42,14 @@ export default function Album({ stamps = [] }) {
     const newLayout = { ...layout };
     stamps.forEach((stamp) => {
       if (!newLayout[stamp.id]) {
+        const stampSize = STAMP_SIZES[stamp.sizeKey] || { w: 40, h: 30 };
+        const aspectRatio = stampSize.w / stampSize.h;
+        const stampHeight = STAMP_WIDTH;
+        const stampDisplayWidth = stampHeight * aspectRatio;
+
         newLayout[stamp.id] = {
-          x: Math.random() * (CONTAINER_WIDTH - STAMP_WIDTH),
-          y: Math.random() * (CONTAINER_HEIGHT - STAMP_WIDTH),
+          x: Math.random() * Math.max(0, CONTAINER_WIDTH - stampDisplayWidth - 20),
+          y: Math.random() * Math.max(0, CONTAINER_HEIGHT - stampHeight - 20),
         };
       }
     });
@@ -99,9 +104,16 @@ export default function Album({ stamps = [] }) {
         if (navigator.vibrate) navigator.vibrate(30);
       }
 
-      // 更新邮票位置
-      const newX = Math.max(0, Math.min(CONTAINER_WIDTH - STAMP_WIDTH, ox + dx));
-      const newY = Math.max(0, Math.min(CONTAINER_HEIGHT - STAMP_WIDTH, oy + dy));
+      // 计算实际邮票尺寸
+      const stamp = stamps.find((s) => s.id === id);
+      const stampSize = STAMP_SIZES[stamp?.sizeKey] || { w: 40, h: 30 };
+      const aspectRatio = stampSize.w / stampSize.h;
+      const stampHeight = STAMP_WIDTH;
+      const stampDisplayWidth = stampHeight * aspectRatio;
+
+      // 更新邮票位置（边界限制）
+      const newX = Math.max(0, Math.min(CONTAINER_WIDTH - stampDisplayWidth, ox + dx));
+      const newY = Math.max(0, Math.min(CONTAINER_HEIGHT - stampHeight, oy + dy));
       setLayout((l) => ({ ...l, [id]: { x: newX, y: newY } }));
     }
   };

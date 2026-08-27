@@ -49,6 +49,9 @@ export default function StampPressMachine({ cropRef, onPress }) {
           transform: pressed ? "translate(-50%, -50%) scale(0.95)" : "translate(-50%, -50%) scale(1)",
           border: "none",
           outline: "none",
+          appearance: "none",
+          WebkitAppearance: "none",
+          MozAppearance: "none",
           cursor: phase === "idle" ? "pointer" : "default",
           padding: 0,
           background: `url('${pressButton}') center/contain no-repeat`,
@@ -58,6 +61,7 @@ export default function StampPressMachine({ cropRef, onPress }) {
           opacity: 1,
           transition: pressed ? "none" : "transform 0.08s, box-shadow 0.08s",
         }}
+        onFocus={(e) => e.currentTarget.blur()}
       />
 
       <style>{`

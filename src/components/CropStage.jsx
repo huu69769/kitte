@@ -232,7 +232,7 @@ export default function CropStage({ onPress }) {
 
     // 1) 白纸底（齿孔形状）
     sctx.fillStyle = '#f6f1e6';
-    const stampPath = createStampPath(outW, outH);
+    const stampPath = createStampPath(outW, outH, 14);
     sctx.fill(stampPath);
 
     // 2) 中间画面区填照片
@@ -265,7 +265,7 @@ export default function CropStage({ onPress }) {
     const thumbMargin = Math.round(margin * (thumb.width / outW));
 
     tctx.fillStyle = '#f6f1e6';
-    const thumbPath = createStampPath(thumb.width, thumb.height);
+    const thumbPath = createStampPath(thumb.width, thumb.height, 14);
     tctx.fill(thumbPath);
 
     tctx.save();

@@ -225,24 +225,13 @@ export default function CropStage({ onPress }) {
       outH = mmToPx(size.h);
     const k = outW / f.w;
 
-    // 邮票模板：白边内缩距离
-    const margin = 8;
-
-    // 创建邮票（固定模板 + 中间填照片）
+    // 创建邮票（照片直接铺满 + 齿孔轮廓裁形）
     const stampCanvas = document.createElement('canvas');
     stampCanvas.width = outW;
     stampCanvas.height = outH;
     const sctx = stampCanvas.getContext('2d');
 
-    // 1) 白纸底（齿孔形状）
-    sctx.fillStyle = '#f6f1e6';
-    const stampPath = createStampPath(outW, outH, 18);
-    sctx.fill(stampPath);
-
-    // 2) 中间画面区填照片
-    sctx.save();
-    sctx.rect(margin, margin, outW - margin * 2, outH - margin * 2);
-    sctx.clip();
+    // 1) 填照片（直接铺满整个邮票）
     sctx.drawImage(
       imgElRef.current,
       (v.tx - f.x) * k,
@@ -250,34 +239,25 @@ export default function CropStage({ onPress }) {
       nat.w * v.scale * k,
       nat.h * v.scale * k
     );
-    sctx.restore();
 
-    // 3) 用齿孔轮廓裁形（确保边界规整）
+    // 2) 用齿孔轮廓裁形（只保留齿孔形状的部分）
+    const stampPath = createStampPath(outW, outH, 18);
     sctx.globalCompositeOperation = 'destination-in';
     sctx.fill(stampPath);
     sctx.globalCompositeOperation = 'source-over';
 
     const stampUrl = stampCanvas.toDataURL('image/png');
 
-    // 生成缩略图（同样的模板）
+    // 生成缩略图（同样的逻辑）
     const thumb = document.createElement('canvas');
     const thumbSize = 300;
     thumb.width = thumbSize;
     thumb.height = Math.round(thumbSize * (outH / outW));
     const tctx = thumb.getContext('2d');
 
-    const thumbMargin = Math.round(margin * (thumb.width / outW));
-
-    tctx.fillStyle = '#f6f1e6';
-    const thumbPath = createStampPath(thumb.width, thumb.height, 14);
-    tctx.fill(thumbPath);
-
-    tctx.save();
-    tctx.rect(thumbMargin, thumbMargin, thumb.width - thumbMargin * 2, thumb.height - thumbMargin * 2);
-    tctx.clip();
     tctx.drawImage(stampCanvas, 0, 0, thumb.width, thumb.height);
-    tctx.restore();
 
+    const thumbPath = createStampPath(thumb.width, thumb.height, 18);
     tctx.globalCompositeOperation = 'destination-in';
     tctx.fill(thumbPath);
     tctx.globalCompositeOperation = 'source-over';

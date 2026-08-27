@@ -39,33 +39,37 @@ function createStampPath(W, H, toothSize = 10) {
   // 从左上角开始
   path.moveTo(r, 0);
 
-  // 上边：从左到右，每个齿距中点挖一个向内(向下)的半圆
-  for (let i = 0; i < nx; i++) {
+  // 上边：从左到右，跳过角上的两个圆
+  for (let i = 1; i < nx - 1; i++) {
     const cx = (i + 0.5) * stepX;
     path.lineTo(cx - r, 0);
-    path.arc(cx, 0, r, Math.PI, 0, true); // 向下凹的半圆
+    path.arc(cx, 0, r, Math.PI, 0, true);
   }
+  path.lineTo(W - r, 0);
 
-  // 右边：从上到下
-  for (let i = 0; i < ny; i++) {
+  // 右边：从上到下，跳过角上的两个圆
+  for (let i = 1; i < ny - 1; i++) {
     const cy = (i + 0.5) * stepY;
     path.lineTo(W, cy - r);
-    path.arc(W, cy, r, Math.PI * 1.5, Math.PI * 0.5, true); // 向左凹的半圆
+    path.arc(W, cy, r, Math.PI * 1.5, Math.PI * 0.5, true);
   }
+  path.lineTo(W, H - r);
 
-  // 下边：从右到左
-  for (let i = nx - 1; i >= 0; i--) {
+  // 下边：从右到左，跳过角上的两个圆
+  for (let i = nx - 2; i >= 1; i--) {
     const cx = (i + 0.5) * stepX;
     path.lineTo(cx + r, H);
-    path.arc(cx, H, r, 0, Math.PI, true); // 向上凹的半圆
+    path.arc(cx, H, r, 0, Math.PI, true);
   }
+  path.lineTo(r, H);
 
-  // 左边：从下到上
-  for (let i = ny - 1; i >= 0; i--) {
+  // 左边：从下到上，跳过角上的两个圆
+  for (let i = ny - 2; i >= 1; i--) {
     const cy = (i + 0.5) * stepY;
     path.lineTo(0, cy + r);
-    path.arc(0, cy, r, Math.PI * 0.5, Math.PI * 1.5, true); // 向右凹的半圆
+    path.arc(0, cy, r, Math.PI * 0.5, Math.PI * 1.5, true);
   }
+  path.lineTo(0, r);
 
   path.closePath();
   return path;
@@ -232,7 +236,7 @@ export default function CropStage({ onPress }) {
 
     // 1) 白纸底（齿孔形状）
     sctx.fillStyle = '#f6f1e6';
-    const stampPath = createStampPath(outW, outH, 16);
+    const stampPath = createStampPath(outW, outH, 18);
     sctx.fill(stampPath);
 
     // 2) 中间画面区填照片

@@ -27,7 +27,7 @@ function computeFrame(size) {
 }
 
 // 在邮票边上打齿孔（destination-out）
-function applyStampPerforations(ctx, W, H, toothSize = 50) {
+function applyStampPerforations(ctx, W, H, toothSize = 70) {
   const margin = 2;
   const nx = Math.max(2, Math.round((W - margin * 2) / toothSize));
   const ny = Math.max(2, Math.round((H - margin * 2) / toothSize));

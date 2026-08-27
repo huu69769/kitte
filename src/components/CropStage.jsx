@@ -12,7 +12,7 @@ const DPI = 600;
 const mmToPx = (mm) => Math.round((mm / 25.4) * DPI);
 const STAGE = 380;
 const PERF = { count: 0.5, depth: 1.0 };
-const TOOTH_SIZE = 43;
+const TOOTH_SIZE = 45;
 
 function computeFrame(size) {
   const pad = 30;
@@ -34,7 +34,7 @@ function applyStampPerforations(ctx, W, H, toothSize = TOOTH_SIZE) {
   const ny = Math.max(2, Math.round((H - margin * 2) / toothSize));
   const stepX = (W - margin * 2) / nx;
   const stepY = (H - margin * 2) / ny;
-  const r = Math.min(stepX, stepY) * 0.42;
+  const r = Math.min(stepX, stepY) * 0.38;
 
   ctx.fillStyle = 'rgba(0,0,0,1)';
   ctx.globalCompositeOperation = 'destination-out';

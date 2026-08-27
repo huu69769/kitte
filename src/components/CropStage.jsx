@@ -205,7 +205,7 @@ export default function CropStage({ onPress }) {
   };
 
   // 高清烘焙 + 回调
-  const press = () => {
+  const bake = () => {
     if (!hasImg) return;
 
     const f = frame,
@@ -386,9 +386,9 @@ export default function CropStage({ onPress }) {
           />
         </div>
 
-        {/* 压印按钮 */}
+        {/* 烘焙按钮 */}
         <button
-          onClick={press}
+          onClick={bake}
           disabled={!hasImg}
           style={{
             border: 'none',
@@ -403,7 +403,7 @@ export default function CropStage({ onPress }) {
             opacity: !hasImg ? 0.5 : 1,
           }}
         >
-          压印
+          烘焙
         </button>
       </div>
     </div>

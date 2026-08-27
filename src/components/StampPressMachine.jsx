@@ -2,70 +2,13 @@ import React, { useState } from "react";
 import pressBody from "../assets/press-machine/body.png";
 import pressButton from "../assets/press-machine/button.png";
 
-function perfPath(W, H, teeth) {
-  const nx = teeth,
-    ny = Math.round((teeth * H) / W);
-  const r = (Math.min(W / nx, H / ny) / 2) * 0.9;
-  let d = "M " + r + " 0 ";
-  for (let i = 0; i < nx; i++) {
-    const cx = (i + 0.5) * (W / nx);
-    d += "L " + (cx - r) + " 0 A " + r + " " + r + " 0 0 0 " + (cx + r) + " 0 ";
-  }
-  d += "L " + W + " " + r + " ";
-  for (let i = 0; i < ny; i++) {
-    const cy = (i + 0.5) * (H / ny);
-    d += "L " + W + " " + (cy - r) + " A " + r + " " + r + " 0 0 0 " + W + " " + (cy + r) + " ";
-  }
-  d += "L " + (W - r) + " " + H + " ";
-  for (let i = nx - 1; i >= 0; i--) {
-    const cx = (i + 0.5) * (W / nx);
-    d += "L " + (cx + r) + " " + H + " A " + r + " " + r + " 0 0 0 " + (cx - r) + " " + H + " ";
-  }
-  d += "L 0 " + (H - r) + " ";
-  for (let i = ny - 1; i >= 0; i--) {
-    const cy = (i + 0.5) * (H / ny);
-    d += "L 0 " + (cy + r) + " A " + r + " " + r + " 0 0 0 0 " + (cy - r) + " ";
-  }
-  return d + "Z";
-}
-
-const stampSVG = (hue) => {
-  const W = 120,
-    H = 90,
-    d = perfPath(W, H, 11);
-  return (
-    "data:image/svg+xml;utf8," +
-    encodeURIComponent(
-      "<svg xmlns='http://www.w3.org/2000/svg' width='" +
-        W +
-        "' height='" +
-        H +
-        "'>" +
-        "<path d='" +
-        d +
-        "' fill='#f6f1e6'/>" +
-        "<rect x='14' y='12' width='" +
-        (W - 28) +
-        "' height='" +
-        (H - 24) +
-        "' fill='" +
-        hue +
-        "' opacity='0.88'/>" +
-        "<path d='" +
-        d +
-        "' fill='none' stroke='#00000018' stroke-width='1'/></svg>"
-    )
-  );
-};
-
-export default function StampPressMachine({ onPress }) {
+export default function StampPressMachine({ stamp, onPress }) {
   const [phase, setPhase] = useState("idle");
   const [pressed, setPressed] = useState(false);
   const [shake, setShake] = useState(false);
-  const [ticket, setTicket] = useState(null);
 
   const doPress = () => {
-    if (phase !== "idle") return;
+    if (phase !== "idle" || !stamp) return;
     setPhase("pressing");
     setPressed(true);
     if (navigator.vibrate) navigator.vibrate([15, 30, 40]);
@@ -73,10 +16,8 @@ export default function StampPressMachine({ onPress }) {
     setTimeout(() => setShake(false), 240);
     setTimeout(() => setPressed(false), 260);
     setTimeout(() => {
-      const stampData = { hue: "#c15b3a" };
-      setTicket(stampData);
       setPhase("ejecting");
-      if (onPress) onPress(stampData);
+      if (onPress) onPress();
     }, 420);
     setTimeout(() => setPhase("idle"), 1300);
   };
@@ -124,7 +65,7 @@ export default function StampPressMachine({ onPress }) {
         {/* 按钮 - 固定位置 */}
         <button
           onClick={doPress}
-          disabled={phase !== "idle"}
+          disabled={phase !== "idle" || !stamp}
           style={{
             position: "absolute",
             top: "49%",
@@ -133,7 +74,7 @@ export default function StampPressMachine({ onPress }) {
             aspectRatio: "1",
             transform: "translate(-50%, -50%)",
             border: "none",
-            cursor: phase === "idle" ? "pointer" : "default",
+            cursor: phase === "idle" && stamp ? "pointer" : "default",
             padding: 0,
             background: `url('${pressButton}') center/contain no-repeat`,
             opacity: pressed ? 0.9 : 1,
@@ -142,7 +83,7 @@ export default function StampPressMachine({ onPress }) {
         />
 
         {/* 出票动画 */}
-        {ticket && (
+        {stamp && phase === "ejecting" && (
           <div
             style={{
               position: "absolute",
@@ -154,7 +95,7 @@ export default function StampPressMachine({ onPress }) {
             }}
           >
             <img
-              src={stampSVG(ticket.hue)}
+              src={stamp.stampUrl}
               alt=""
               style={{ width: 120, filter: "drop-shadow(0 6px 12px rgba(0,0,0,.5))" }}
             />
@@ -162,12 +103,27 @@ export default function StampPressMachine({ onPress }) {
         )}
       </div>
 
-      <div
-        style={{ fontSize: 11, color: "#9a9ea5", textAlign: "center", lineHeight: 1.8 }}
-      >
-        点击按钮压印邮票
-        <br />
-      </div>
+      {/* 等待邮票提示 */}
+      {!stamp && (
+        <div
+          style={{
+            fontSize: 12,
+            color: "#9a9ea5",
+            textAlign: "center",
+            marginTop: 20,
+          }}
+        >
+          等待烘焙邮票…
+        </div>
+      )}
+
+      {stamp && phase === "idle" && (
+        <div
+          style={{ fontSize: 11, color: "#9a9ea5", textAlign: "center", lineHeight: 1.8 }}
+        >
+          按下红色按钮压印
+        </div>
+      )}
 
       <style>{`
         @keyframes eject {

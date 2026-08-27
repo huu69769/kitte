@@ -107,7 +107,7 @@ function App() {
         )}
       </div>
 
-      {/* 压印台 */}
+      {/* 压印台 - 取景 + 压印机并排 */}
       <div
         style={{
           display: 'flex',
@@ -118,14 +118,8 @@ function App() {
         }}
       >
         <CropStage onPress={handlePress} />
+        <StampPressMachine stamp={pendingStamp} onPress={handleMachinePress} />
       </div>
-
-      {/* 压印机 - 仅在有待压印邮票时显示 */}
-      {pendingStamp && (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <StampPressMachine onPress={handleMachinePress} />
-        </div>
-      )}
 
       {/* 暂存台 */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>

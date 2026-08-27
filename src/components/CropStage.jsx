@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import theme from '../theme';
 
 const SIZES = [
@@ -64,7 +64,7 @@ function applyStampPerforations(ctx, W, H, toothSize = TOOTH_SIZE) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-export default function CropStage({ onPress }) {
+const CropStage = forwardRef(({ onPress }, ref) => {
   const [sizeKey, setSizeKey] = useState('40x30');
   const [nat, setNat] = useState(null);
   const [imgUrl, setImgUrl] = useState(null);
@@ -73,6 +73,10 @@ export default function CropStage({ onPress }) {
   const imgElRef = useRef(null);
   const stageRef = useRef(null);
   const fileRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    bake,
+  }));
 
   const size = SIZES.find((s) => s.key === sizeKey);
   const frame = computeFrame(size);
@@ -386,26 +390,10 @@ export default function CropStage({ onPress }) {
           />
         </div>
 
-        {/* 烘焙按钮 */}
-        <button
-          onClick={bake}
-          disabled={!hasImg}
-          style={{
-            border: 'none',
-            borderRadius: 6,
-            padding: '13px 16px',
-            fontSize: 14,
-            cursor: !hasImg ? 'not-allowed' : 'pointer',
-            background: theme.accent,
-            color: '#faf7f1',
-            fontWeight: 600,
-            letterSpacing: 2,
-            opacity: !hasImg ? 0.5 : 1,
-          }}
-        >
-          烘焙
-        </button>
       </div>
     </div>
   );
-}
+});
+
+CropStage.displayName = 'CropStage';
+export default CropStage;

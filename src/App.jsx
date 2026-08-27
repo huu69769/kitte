@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import theme from './theme';
 import { createAlbum, getAllAlbums, createStamp, requestPersistent } from './db';
 import CropStage from './components/CropStage';
@@ -11,7 +11,7 @@ function App() {
   const [tray, setTray] = useState([]);
   const [album, setAlbum] = useState(null);
   const [stamps, setStamps] = useState([]); // 已收进集邮册的邮票
-  const [pendingStamp, setPendingStamp] = useState(null); // 等待压印的邮票
+  const cropRef = useRef(null);
   const nextNo = { current: 1 };
 
   useEffect(() => {
@@ -34,7 +34,7 @@ function App() {
     init();
   }, []);
 
-  const handlePress = ({ stampUrl, thumbUrl, size, sizeKey }) => {
+  const handleMachinePress = ({ stampUrl, thumbUrl, size, sizeKey }) => {
     const stamp = {
       id: `stamp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       no: nextNo.current++,
@@ -43,14 +43,7 @@ function App() {
       size,
       sizeKey,
     };
-    setPendingStamp(stamp);
-  };
-
-  const handleMachinePress = () => {
-    if (pendingStamp) {
-      setTray((t) => [...t, pendingStamp]);
-      setPendingStamp(null);
-    }
+    setTray((t) => [...t, stamp]);
   };
 
   const handleRemove = (stampId) => {
@@ -117,8 +110,8 @@ function App() {
           flexWrap: 'wrap',
         }}
       >
-        <CropStage onPress={handlePress} />
-        <StampPressMachine stamp={pendingStamp} onPress={handleMachinePress} />
+        <CropStage ref={cropRef} onPress={handleMachinePress} />
+        <StampPressMachine cropRef={cropRef} onPress={handleMachinePress} />
       </div>
 
       {/* 暂存台 */}

@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import pressBody from "../assets/press-machine/body.png";
 import pressButton from "../assets/press-machine/button.png";
 
-export default function StampPressMachine({ stamp, onPress }) {
+export default function StampPressMachine({ cropRef, onPress }) {
   const [phase, setPhase] = useState("idle");
   const [pressed, setPressed] = useState(false);
   const [shake, setShake] = useState(false);
 
   const doPress = () => {
-    if (phase !== "idle" || !stamp) return;
+    if (phase !== "idle" || !cropRef?.current) return;
     setPhase("pressing");
     setPressed(true);
     if (navigator.vibrate) navigator.vibrate([15, 30, 40]);
@@ -17,7 +17,7 @@ export default function StampPressMachine({ stamp, onPress }) {
     setTimeout(() => setPressed(false), 260);
     setTimeout(() => {
       setPhase("ejecting");
-      if (onPress) onPress();
+      cropRef.current.bake();
     }, 420);
     setTimeout(() => setPhase("idle"), 1300);
   };
@@ -65,7 +65,7 @@ export default function StampPressMachine({ stamp, onPress }) {
         {/* 按钮 - 固定位置 */}
         <button
           onClick={doPress}
-          disabled={phase !== "idle" || !stamp}
+          disabled={phase !== "idle"}
           style={{
             position: "absolute",
             top: "49%",
@@ -74,7 +74,7 @@ export default function StampPressMachine({ stamp, onPress }) {
             aspectRatio: "1",
             transform: "translate(-50%, -50%)",
             border: "none",
-            cursor: phase === "idle" && stamp ? "pointer" : "default",
+            cursor: phase === "idle" ? "pointer" : "default",
             padding: 0,
             background: `url('${pressButton}') center/contain no-repeat`,
             opacity: pressed ? 0.9 : 1,
@@ -82,48 +82,13 @@ export default function StampPressMachine({ stamp, onPress }) {
           }}
         />
 
-        {/* 出票动画 */}
-        {stamp && phase === "ejecting" && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 2,
-              animation: "eject 0.9s cubic-bezier(.2,.8,.3,1) forwards",
-            }}
-          >
-            <img
-              src={stamp.stampUrl}
-              alt=""
-              style={{ width: 120, filter: "drop-shadow(0 6px 12px rgba(0,0,0,.5))" }}
-            />
-          </div>
-        )}
       </div>
 
-      {/* 等待邮票提示 */}
-      {!stamp && (
-        <div
-          style={{
-            fontSize: 12,
-            color: "#9a9ea5",
-            textAlign: "center",
-            marginTop: 20,
-          }}
-        >
-          等待烘焙邮票…
-        </div>
-      )}
-
-      {stamp && phase === "idle" && (
-        <div
-          style={{ fontSize: 11, color: "#9a9ea5", textAlign: "center", lineHeight: 1.8 }}
-        >
-          按下红色按钮压印
-        </div>
-      )}
+      <div
+        style={{ fontSize: 11, color: "#9a9ea5", textAlign: "center", lineHeight: 1.8, marginTop: 16 }}
+      >
+        按下红色按钮压印
+      </div>
 
       <style>{`
         @keyframes eject {

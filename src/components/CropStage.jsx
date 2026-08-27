@@ -254,7 +254,7 @@ export default function CropStage({ onPress }) {
     );
 
     // 2) 用齿孔轮廓裁形（只保留齿孔形状的部分）
-    const stampPath = createStampPath(outW, outH, 22);
+    const stampPath = createStampPath(outW, outH, 28);
     sctx.globalCompositeOperation = 'destination-in';
     sctx.fill(stampPath);
     sctx.globalCompositeOperation = 'source-over';

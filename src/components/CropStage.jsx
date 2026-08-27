@@ -64,7 +64,7 @@ function applyStampPerforations(ctx, W, H, toothSize = TOOTH_SIZE) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-const CropStage = forwardRef(({ onPress }, ref) => {
+const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
   const [sizeKey, setSizeKey] = useState('40x30');
   const [nat, setNat] = useState(null);
   const [imgUrl, setImgUrl] = useState(null);
@@ -76,6 +76,12 @@ const CropStage = forwardRef(({ onPress }, ref) => {
 
   useImperativeHandle(ref, () => ({
     bake,
+    fileRef,
+    sizeKey,
+    setSizeKey,
+    zoomRel,
+    onZoomSlider,
+    hasImg,
   }));
 
   const size = SIZES.find((s) => s.key === sizeKey);
@@ -324,7 +330,7 @@ const CropStage = forwardRef(({ onPress }, ref) => {
       </div>
 
       {/* 右侧控制面板 */}
-      <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 20, opacity: hasImg ? 1 : 0.8 }}>
+      {!hideControls && (<div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 20, opacity: hasImg ? 1 : 0.8 }}>
         <button
           onClick={() => fileRef.current.click()}
           style={{
@@ -391,9 +397,7 @@ const CropStage = forwardRef(({ onPress }, ref) => {
         </div>
 
       </div>
-    </div>
-  );
-});
+      )}
 
 CropStage.displayName = 'CropStage';
 export default CropStage;

@@ -100,7 +100,7 @@ function App() {
         )}
       </div>
 
-      {/* 压印台 - 取景 + 压印机并排 */}
+      {/* 压印台 - 控制面板 + 取景 + 压印机 */}
       <div
         style={{
           display: 'flex',
@@ -108,9 +108,82 @@ function App() {
           width: '100%',
           gap: 60,
           flexWrap: 'wrap',
+          alignItems: 'flex-start',
         }}
       >
-        <CropStage ref={cropRef} onPress={handleMachinePress} />
+        {/* 左侧控制面板 */}
+        <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <button
+            onClick={() => cropRef.current?.fileRef.current?.click()}
+            style={{
+              border: `1.5px solid ${theme.gold}`,
+              borderRadius: 6,
+              padding: '11px 14px',
+              fontSize: 13,
+              cursor: 'pointer',
+              background: 'transparent',
+              color: theme.ink,
+            }}
+          >
+            {cropRef.current?.hasImg ? '换一张照片' : '上传照片'}
+          </button>
+
+          {/* 尺寸选择 */}
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>邮票尺寸</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {[
+                { key: '40x30', label: '横版', w: 40, h: 30 },
+                { key: '30x40', label: '竖版', w: 30, h: 40 },
+                { key: '35x35', label: '方形', w: 35, h: 35 },
+                { key: '70x50', label: '大票幅', w: 70, h: 50 },
+              ].map((s) => {
+                const active = s.key === cropRef.current?.sizeKey;
+                return (
+                  <button
+                    key={s.key}
+                    onClick={() => cropRef.current?.setSizeKey(s.key)}
+                    style={{
+                      background: active ? theme.panel : 'transparent',
+                      color: active ? theme.accent : theme.dim,
+                      border: `1.5px solid ${active ? theme.accent : theme.line}`,
+                      borderRadius: 6,
+                      padding: '9px 12px',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span>{s.label}</span>
+                    <small style={{ color: theme.dim, fontSize: 11 }}>
+                      {s.w}×{s.h}
+                    </small>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 缩放滑块 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: theme.dim, fontSize: 12 }}>
+            <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, fontSize: 10 }}>缩放</span>
+            <input
+              type="range"
+              min={1}
+              max={4}
+              step={0.01}
+              value={cropRef.current?.zoomRel || 1}
+              onChange={(e) => cropRef.current?.onZoomSlider(e)}
+              disabled={!cropRef.current?.hasImg}
+              style={{ width: '100%', accentColor: theme.accent, opacity: cropRef.current?.hasImg ? 1 : 0.5 }}
+            />
+          </div>
+        </div>
+
+        <CropStage ref={cropRef} onPress={handleMachinePress} hideControls />
         <StampPressMachine cropRef={cropRef} onPress={handleMachinePress} />
       </div>
 

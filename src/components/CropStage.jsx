@@ -37,39 +37,40 @@ function createStampPath(W, H, toothSize = 10) {
   const path = new Path2D();
 
   // 从左上角开始
-  path.moveTo(r, 0);
+  path.moveTo(0, 0);
 
-  // 上边：从左到右，跳过角上的两个圆
-  for (let i = 1; i < nx - 1; i++) {
+  // 上边：从左到右
+  path.lineTo(0, 0);
+  for (let i = 0; i < nx; i++) {
     const cx = (i + 0.5) * stepX;
     path.lineTo(cx - r, 0);
     path.arc(cx, 0, r, Math.PI, 0, true);
   }
-  path.lineTo(W - r, 0);
+  path.lineTo(W, 0);
 
-  // 右边：从上到下，跳过角上的两个圆
-  for (let i = 1; i < ny - 1; i++) {
+  // 右边：从上到下
+  for (let i = 0; i < ny; i++) {
     const cy = (i + 0.5) * stepY;
     path.lineTo(W, cy - r);
     path.arc(W, cy, r, Math.PI * 1.5, Math.PI * 0.5, true);
   }
-  path.lineTo(W, H - r);
+  path.lineTo(W, H);
 
-  // 下边：从右到左，跳过角上的两个圆
-  for (let i = nx - 2; i >= 1; i--) {
+  // 下边：从右到左
+  for (let i = nx - 1; i >= 0; i--) {
     const cx = (i + 0.5) * stepX;
     path.lineTo(cx + r, H);
     path.arc(cx, H, r, 0, Math.PI, true);
   }
-  path.lineTo(r, H);
+  path.lineTo(0, H);
 
-  // 左边：从下到上，跳过角上的两个圆
-  for (let i = ny - 2; i >= 1; i--) {
+  // 左边：从下到上
+  for (let i = ny - 1; i >= 0; i--) {
     const cy = (i + 0.5) * stepY;
     path.lineTo(0, cy + r);
     path.arc(0, cy, r, Math.PI * 0.5, Math.PI * 1.5, true);
   }
-  path.lineTo(0, r);
+  path.lineTo(0, 0);
 
   path.closePath();
   return path;

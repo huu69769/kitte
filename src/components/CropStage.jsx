@@ -12,7 +12,7 @@ const DPI = 600;
 const mmToPx = (mm) => Math.round((mm / 25.4) * DPI);
 const STAGE = 380;
 const PERF = { count: 0.5, depth: 1.0 };
-const TOOTH_SIZE = 41;
+const TOOTH_SIZE = 43;
 
 function computeFrame(size) {
   const pad = 30;
@@ -39,33 +39,23 @@ function applyStampPerforations(ctx, W, H, toothSize = TOOTH_SIZE) {
   ctx.fillStyle = 'rgba(0,0,0,1)';
   ctx.globalCompositeOperation = 'destination-out';
 
-  // 上边齿孔（排到角）
+  // 上下边齿孔（固定22个）
   for (let i = 0; i < nx; i++) {
     const x = margin + (i + 0.5) * stepX;
     ctx.beginPath();
     ctx.arc(x, margin, r, 0, Math.PI * 2);
     ctx.fill();
-  }
-
-  // 下边齿孔
-  for (let i = 0; i < nx; i++) {
-    const x = margin + (i + 0.5) * stepX;
     ctx.beginPath();
     ctx.arc(x, H - margin, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 左边齿孔
+  // 左右边齿孔（固定16个）
   for (let i = 0; i < ny; i++) {
     const y = margin + (i + 0.5) * stepY;
     ctx.beginPath();
     ctx.arc(margin, y, r, 0, Math.PI * 2);
     ctx.fill();
-  }
-
-  // 右边齿孔
-  for (let i = 0; i < ny; i++) {
-    const y = margin + (i + 0.5) * stepY;
     ctx.beginPath();
     ctx.arc(W - margin, y, r, 0, Math.PI * 2);
     ctx.fill();

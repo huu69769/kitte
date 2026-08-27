@@ -232,7 +232,7 @@ export default function CropStage({ onPress }) {
 
     // 1) 白纸底（齿孔形状）
     sctx.fillStyle = '#f6f1e6';
-    const stampPath = createStampPath(outW, outH, 14);
+    const stampPath = createStampPath(outW, outH, 16);
     sctx.fill(stampPath);
 
     // 2) 中间画面区填照片

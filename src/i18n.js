@@ -1,0 +1,78 @@
+const translations = {
+  zh: {
+    title: '切手工房',
+    uploadPhoto: '上传照片',
+    changePhoto: '换一张照片',
+    stampSize: '邮票尺寸',
+    horizontal: '横版',
+    vertical: '竖版',
+    square: '方形',
+    large: '大票幅',
+    zoom: '缩放',
+    tray: '暂存台',
+    album: '集邮册',
+    pressNotification: '已压印，添加到暂存台',
+    addToAlbum: '添加到集邮册',
+    remove: '移除',
+    noStamps: '暂无邮票',
+    stampCount: (count) => `${count} 张邮票`,
+    uploadImage: '上传图片',
+    dragZoom: '拖动 / 缩放取景',
+    stampsTempLocation: '压印后邮票先落在这里',
+    addSelectedToAlbum: '挑好的收进集邮册',
+    archiveInAlbum: (count) => `收进集邮册${count ? `（${count}）` : ''}`,
+    clearSelection: '清空',
+    tapGuide: '点邮票=放大 · 点右上角=勾选',
+    archiveDirectly: '直接收进',
+    delete: '删除',
+    close: '关闭',
+    myAlbum: '我的集邮册',
+    stampCountText: (count) => `${count} 枚邮票`,
+    noStampsAlbum: '尚无邮票',
+    addFromTray: '从暂存台添加邮票',
+    editPending: '编辑（待实现）',
+  },
+  ja: {
+    title: '切手工房',
+    uploadPhoto: '写真をアップロード',
+    changePhoto: '別の写真に変更',
+    stampSize: '切手サイズ',
+    horizontal: '横型',
+    vertical: '縦型',
+    square: '正方形',
+    large: 'ラージサイズ',
+    zoom: 'ズーム',
+    tray: '一時保存台',
+    album: '切手アルバム',
+    pressNotification: '押印完了、一時保存台に追加されました',
+    addToAlbum: 'アルバムに追加',
+    remove: '削除',
+    noStamps: '切手がありません',
+    stampCount: (count) => `${count} 枚の切手`,
+    uploadImage: '写真をアップロード',
+    dragZoom: 'ドラッグ / ズームで構図調整',
+    stampsTempLocation: '押印後の切手はここに一時保存されます',
+    addSelectedToAlbum: '選択した切手をアルバムに追加',
+    archiveInAlbum: (count) => `アルバムに追加${count ? `（${count}）` : ''}`,
+    clearSelection: 'クリア',
+    tapGuide: '切手をタップ=拡大 · 右上をタップ=選択',
+    archiveDirectly: '直接追加',
+    delete: '削除',
+    close: '閉じる',
+    myAlbum: 'マイアルバム',
+    stampCountText: (count) => `${count} 枚の切手`,
+    noStampsAlbum: '切手がありません',
+    addFromTray: '一時保存台から切手を追加',
+    editPending: '編集（準備中）',
+  },
+};
+
+export const t = (key, lang = 'zh', ...args) => {
+  const text = translations[lang]?.[key];
+  if (typeof text === 'function') {
+    return text(...args);
+  }
+  return text || key;
+};
+
+export default translations;

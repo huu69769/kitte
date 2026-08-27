@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import theme from '../theme';
+import { t } from '../i18n';
 
 /**
  * 集邮册组件
@@ -25,7 +26,7 @@ const STAMP_SIZES = {
   '70x50': { w: 70, h: 50 },
 };
 
-export default function Album({ stamps = [] }) {
+export default function Album({ stamps = [], lang = 'zh' }) {
   const [layout, setLayout] = useState({}); // stampId -> {x, y}
   const [selectedStamp, setSelectedStamp] = useState(null); // 放大查看
   const [draggingId, setDraggingId] = useState(null); // 正在拖动的邮票ID
@@ -149,10 +150,10 @@ export default function Album({ stamps = [] }) {
       {/* 标题 */}
       <div style={{ textAlign: 'center' }}>
         <h2 style={{ fontSize: 18, fontWeight: 600, color: theme.ink, margin: 0, letterSpacing: 2 }}>
-          我的集邮册
+          {t('myAlbum', lang)}
         </h2>
         <p style={{ fontSize: 12, color: theme.dim, margin: '8px 0 0', letterSpacing: 1 }}>
-          {stamps.length} 枚邮票
+          {t('stampCountText', lang, stamps.length)}
         </p>
       </div>
 
@@ -236,8 +237,8 @@ export default function Album({ stamps = [] }) {
               pointerEvents: 'none',
             }}
           >
-            <div style={{ fontSize: 11, letterSpacing: 1, marginBottom: 8 }}>尚无邮票</div>
-            <div style={{ fontSize: 12 }}>从暂存台添加邮票</div>
+            <div style={{ fontSize: 11, letterSpacing: 1, marginBottom: 8 }}>{t('noStampsAlbum', lang)}</div>
+            <div style={{ fontSize: 12 }}>{t('addFromTray', lang)}</div>
           </div>
         )}
       </div>
@@ -247,6 +248,7 @@ export default function Album({ stamps = [] }) {
         <StampPreview
           stamp={stamps.find((s) => s.id === selectedStamp)}
           onClose={() => setSelectedStamp(null)}
+          lang={lang}
         />
       )}
     </div>
@@ -256,7 +258,7 @@ export default function Album({ stamps = [] }) {
 /**
  * 邮票放大查看模态
  */
-function StampPreview({ stamp, onClose }) {
+function StampPreview({ stamp, onClose, lang = 'zh' }) {
   if (!stamp) return null;
 
   return (
@@ -324,7 +326,7 @@ function StampPreview({ stamp, onClose }) {
               cursor: 'pointer',
             }}
           >
-            关闭
+            {t('close', lang)}
           </button>
           <button
             style={{
@@ -337,7 +339,7 @@ function StampPreview({ stamp, onClose }) {
               cursor: 'pointer',
             }}
           >
-            编辑（待实现）
+            {t('editPending', lang)}
           </button>
         </div>
 

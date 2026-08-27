@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import theme from '../theme';
+import { t } from '../i18n';
 
 const SIZES = [
   { key: '40x30', label: '横版', w: 40, h: 30 },
@@ -64,7 +65,7 @@ function applyStampPerforations(ctx, W, H, toothSize = TOOTH_SIZE) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
+const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
   const [sizeKey, setSizeKey] = useState('40x30');
   const [nat, setNat] = useState(null);
   const [imgUrl, setImgUrl] = useState(null);
@@ -288,7 +289,7 @@ const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
       >
         {!hasImg && (
           <div style={{ color: theme.dim, fontSize: 13, textAlign: 'center', lineHeight: 1.9, pointerEvents: 'none' }}>
-            先上传一张照片<br />拖动 / 缩放取景
+            {t('uploadImage', lang)}<br />{t('dragZoom', lang)}
           </div>
         )}
         {hasImg && (
@@ -343,16 +344,22 @@ const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
             color: theme.ink,
           }}
         >
-          {hasImg ? '换一张照片' : '上传照片'}
+          {hasImg ? t('changePhoto', lang) : t('uploadPhoto', lang)}
         </button>
         <input ref={fileRef} type="file" accept="image/*" onChange={onFile} style={{ display: 'none' }} />
 
         {/* 尺寸选择 */}
         <div>
-          <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>邮票尺寸</div>
+          <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>{t('stampSize', lang)}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
             {SIZES.map((s) => {
               const active = s.key === sizeKey;
+              const labels = {
+                '40x30': t('horizontal', lang),
+                '30x40': t('vertical', lang),
+                '35x35': t('square', lang),
+                '70x50': t('large', lang),
+              };
               return (
                 <button
                   key={s.key}
@@ -371,7 +378,7 @@ const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
                     alignItems: 'center',
                   }}
                 >
-                  <span>{s.label}</span>
+                  <span>{labels[s.key]}</span>
                   <small style={{ color: theme.dim, fontSize: 11 }}>
                     {s.w}×{s.h}
                   </small>
@@ -383,7 +390,7 @@ const CropStage = forwardRef(({ onPress, hideControls }, ref) => {
 
         {/* 缩放滑块 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: theme.dim, fontSize: 12 }}>
-          <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, fontSize: 10 }}>缩放</span>
+          <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, fontSize: 10 }}>{t('zoom', lang)}</span>
           <input
             type="range"
             min={1}

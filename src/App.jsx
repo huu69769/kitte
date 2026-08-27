@@ -5,6 +5,7 @@ import CropStage from './components/CropStage';
 import StampPressMachine from './components/StampPressMachine';
 import TraySidebar from './components/TraySidebar';
 import Album from './components/Album';
+import { t } from './i18n';
 import './App.css';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
   const [album, setAlbum] = useState(null);
   const [stamps, setStamps] = useState([]); // 已收进集邮册的邮票
   const [toast, setToast] = useState(null);
+  const [lang, setLang] = useState('zh');
   const cropRef = useRef(null);
   const fileInputRef = useRef(null);
   const nextNo = { current: 1 };
@@ -46,7 +48,7 @@ function App() {
       sizeKey,
     };
     setTray((t) => [...t, stamp]);
-    setToast('已压印，添加到暂存台');
+    setToast(t('pressNotification', lang));
     setTimeout(() => setToast(null), 2000);
   };
 
@@ -95,13 +97,49 @@ function App() {
             textTransform: 'uppercase',
           }}
         >
-          切手工房
+          {t('title', lang)}
         </div>
-        {album && (
-          <div style={{ fontSize: 11, color: theme.dim, letterSpacing: 1 }}>
-            {album.title}
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          {album && (
+            <div style={{ fontSize: 11, color: theme.dim, letterSpacing: 1 }}>
+              {album.title}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setLang('zh')}
+              style={{
+                background: lang === 'zh' ? theme.accent : 'transparent',
+                color: lang === 'zh' ? '#fff' : theme.dim,
+                border: `1px solid ${lang === 'zh' ? theme.accent : theme.line}`,
+                padding: '6px 12px',
+                borderRadius: 4,
+                fontSize: 11,
+                cursor: 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.2s',
+              }}
+            >
+              中文
+            </button>
+            <button
+              onClick={() => setLang('ja')}
+              style={{
+                background: lang === 'ja' ? theme.accent : 'transparent',
+                color: lang === 'ja' ? '#fff' : theme.dim,
+                border: `1px solid ${lang === 'ja' ? theme.accent : theme.line}`,
+                padding: '6px 12px',
+                borderRadius: 4,
+                fontSize: 11,
+                cursor: 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.2s',
+              }}
+            >
+              日本語
+            </button>
           </div>
-        )}
+        </div>
       </div>
 
       {/* 压印台 - 控制面板 + 取景 + 压印机 */}
@@ -129,7 +167,7 @@ function App() {
               color: theme.ink,
             }}
           >
-            {cropRef.current?.hasImg ? '换一张照片' : '上传照片'}
+            {cropRef.current?.hasImg ? t('changePhoto', lang) : t('uploadPhoto', lang)}
           </button>
           <input
             ref={fileInputRef}
@@ -141,13 +179,13 @@ function App() {
 
           {/* 尺寸选择 */}
           <div>
-            <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>邮票尺寸</div>
+            <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>{t('stampSize', lang)}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[
-                { key: '40x30', label: '横版', w: 40, h: 30 },
-                { key: '30x40', label: '竖版', w: 30, h: 40 },
-                { key: '35x35', label: '方形', w: 35, h: 35 },
-                { key: '70x50', label: '大票幅', w: 70, h: 50 },
+                { key: '40x30', label: t('horizontal', lang), w: 40, h: 30 },
+                { key: '30x40', label: t('vertical', lang), w: 30, h: 40 },
+                { key: '35x35', label: t('square', lang), w: 35, h: 35 },
+                { key: '70x50', label: t('large', lang), w: 70, h: 50 },
               ].map((s) => {
                 const active = s.key === cropRef.current?.sizeKey;
                 return (
@@ -180,7 +218,7 @@ function App() {
 
           {/* 缩放滑块 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, color: theme.dim, fontSize: 12 }}>
-            <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, fontSize: 10 }}>缩放</span>
+            <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, fontSize: 10 }}>{t('zoom', lang)}</span>
             <input
               type="range"
               min={1}
@@ -194,7 +232,7 @@ function App() {
           </div>
         </div>
 
-        <CropStage ref={cropRef} onPress={handleMachinePress} hideControls />
+        <CropStage ref={cropRef} onPress={handleMachinePress} hideControls lang={lang} />
         <StampPressMachine cropRef={cropRef} onPress={handleMachinePress} />
       </div>
 
@@ -204,13 +242,14 @@ function App() {
           tray={tray}
           onRemove={handleRemove}
           onAddToAlbum={handleAddToAlbum}
+          lang={lang}
         />
       </div>
 
       {/* 集邮册 */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: 1200 }}>
-          <Album stamps={stamps} />
+          <Album stamps={stamps} lang={lang} />
         </div>
       </div>
 

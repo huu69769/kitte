@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import theme from '../theme';
+import { t } from '../i18n';
 
 const TRAY_LIMIT = 20;
 
-export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
+export default function TraySidebar({ tray, onRemove, onAddToAlbum, lang = 'zh' }) {
   const [selected, setSelected] = useState({});
   const [viewing, setViewing] = useState(null);
 
@@ -26,7 +27,7 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
       {/* 暂存台面板 */}
       <div style={{ width: '100%', maxWidth: '100%', paddingLeft: 20, paddingRight: 20, marginTop: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
-          <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', fontWeight: 600 }}>暂存台</div>
+          <div style={{ fontSize: 10, letterSpacing: 1.5, color: theme.dim, textTransform: 'uppercase', fontWeight: 600 }}>{t('tray', lang)}</div>
           <div style={{ fontSize: 11, color: trayFull ? theme.accent : theme.dim, fontWeight: 500 }}>
             {tray.length} / {TRAY_LIMIT}
           </div>
@@ -45,8 +46,8 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
               background: theme.bgLight,
             }}
           >
-            压印后邮票先落在这里<br />
-            挑好的收进集邮册
+            {t('stampsTempLocation', lang)}<br />
+            {t('addSelectedToAlbum', lang)}
           </div>
         ) : (
           <>
@@ -120,7 +121,7 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
                   cursor: selCount ? 'pointer' : 'not-allowed',
                 }}
               >
-                {selCount ? `收进集邮册（${selCount}）` : '收进集邮册'}
+                {t('archiveInAlbum', lang, selCount || 0)}
               </button>
               {selCount > 0 && (
                 <button
@@ -135,10 +136,10 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
                     cursor: 'pointer',
                   }}
                 >
-                  清空
+                  {t('clearSelection', lang)}
                 </button>
               )}
-              <span style={{ fontSize: 11, color: theme.dim, marginLeft: 'auto' }}>点邮票=放大 · 点右上角=勾选</span>
+              <span style={{ fontSize: 11, color: theme.dim, marginLeft: 'auto' }}>{t('tapGuide', lang)}</span>
             </div>
           </>
         )}
@@ -193,7 +194,7 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
                 fontWeight: 600,
               }}
             >
-              直接收进
+              {t('archiveDirectly', lang)}
             </button>
             <button
               onClick={() => {
@@ -210,7 +211,7 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
                 cursor: 'pointer',
               }}
             >
-              删除
+              {t('delete', lang)}
             </button>
             <button
               onClick={() => setViewing(null)}
@@ -224,7 +225,7 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum }) {
                 cursor: 'pointer',
               }}
             >
-              关闭
+              {t('close', lang)}
             </button>
           </div>
         </div>

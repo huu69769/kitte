@@ -44,7 +44,7 @@ export default function StampPressMachine({ cropRef, onPress }) {
           position: "absolute",
           top: "49%",
           left: "50%",
-          width: "30%",
+          width: "38%",
           aspectRatio: "1",
           transform: "translate(-50%, -50%)",
           border: "none",

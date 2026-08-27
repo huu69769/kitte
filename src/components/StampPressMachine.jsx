@@ -22,73 +22,39 @@ export default function StampPressMachine({ cropRef, onPress }) {
     setTimeout(() => setPhase("idle"), 1300);
   };
 
-  const C = {
-    body: "#2e2b2c",
-    bodyHi: "#3d3839",
-    red: "#a83a2e",
-    redHi: "#c04a3a",
-    redDk: "#7a2a20",
-    slot: "#1a1718",
-    brass: "#c9a24b",
-    paper: "#f6f1e6",
-  };
-
   return (
     <div
       style={{
-        minHeight: "100vh",
-        background: "radial-gradient(120% 90% at 50% 5%, #34363b, #232427 75%)",
-        fontFamily: '"PingFang SC","Microsoft YaHei",system-ui,sans-serif',
-        color: "#e8e6e1",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "40px 20px",
-        gap: 30,
+        position: "relative",
+        width: 380,
+        aspectRatio: "1",
+        transform: shake ? "translateY(2px)" : "translateY(0)",
+        transition: "transform .04s",
+        cursor: phase === "idle" ? "pointer" : "default",
       }}
     >
-      <div style={{ fontSize: 13, letterSpacing: 5, color: "#9a9ea5", textTransform: "uppercase" }}>
-        Stamp Press · 压印机
-      </div>
+      {/* 机身 */}
+      <img src={pressBody} alt="press body" style={{ width: "100%", height: "100%", display: "block" }} />
 
-      <div
+      {/* 按钮 - 固定位置 */}
+      <button
+        onClick={doPress}
+        disabled={phase !== "idle"}
         style={{
-          position: "relative",
-          width: 260,
-          transform: shake ? "translateY(2px)" : "translateY(0)",
-          transition: "transform .04s",
+          position: "absolute",
+          top: "49%",
+          left: "50%",
+          width: "30%",
+          aspectRatio: "1",
+          transform: "translate(-50%, -50%)",
+          border: "none",
+          cursor: phase === "idle" ? "pointer" : "default",
+          padding: 0,
+          background: `url('${pressButton}') center/contain no-repeat`,
+          opacity: pressed ? 0.9 : 1,
+          transition: pressed ? "none" : "opacity .12s",
         }}
-      >
-        {/* 机身 */}
-        <img src={pressBody} alt="press body" style={{ width: "100%", display: "block" }} />
-
-        {/* 按钮 - 固定位置 */}
-        <button
-          onClick={doPress}
-          disabled={phase !== "idle"}
-          style={{
-            position: "absolute",
-            top: "49%",
-            left: "50%",
-            width: "30%",
-            aspectRatio: "1",
-            transform: "translate(-50%, -50%)",
-            border: "none",
-            cursor: phase === "idle" ? "pointer" : "default",
-            padding: 0,
-            background: `url('${pressButton}') center/contain no-repeat`,
-            opacity: pressed ? 0.9 : 1,
-            transition: pressed ? "none" : "opacity .12s",
-          }}
-        />
-
-      </div>
-
-      <div
-        style={{ fontSize: 11, color: "#9a9ea5", textAlign: "center", lineHeight: 1.8, marginTop: 16 }}
-      >
-        按下红色按钮压印
-      </div>
+      />
 
       <style>{`
         @keyframes eject {

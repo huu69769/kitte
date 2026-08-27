@@ -26,47 +26,49 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
-// 创建邮票齿孔形状路径（使用 destination-out 复合模式）
-function applyStampPerforations(ctx, W, H) {
-  const nx = Math.max(6, Math.round((W / DPI) * 25.4 * PERF.count));
-  const ny = Math.max(6, Math.round((H / DPI) * 25.4 * PERF.count));
+// 生成邮票齿孔轮廓 Path2D（Canvas 原生）
+function createStampPath(W, H, toothSize = 10) {
+  const nx = Math.max(4, Math.round(W / toothSize));
+  const ny = Math.max(4, Math.round(H / toothSize));
   const stepX = W / nx;
   const stepY = H / ny;
-  const r = Math.min(stepX, stepY) * PERF.depth;
+  const r = Math.min(stepX, stepY) * 0.42;
 
-  ctx.fillStyle = 'rgba(0,0,0,1)';
-  ctx.globalCompositeOperation = 'destination-out';
+  const path = new Path2D();
 
-  // 上边齿孔
+  // 从左上角开始
+  path.moveTo(r, 0);
+
+  // 上边：从左到右，每个齿距中点挖一个向内(向下)的半圆
   for (let i = 0; i < nx; i++) {
-    const x = (i + 0.5) * stepX;
-    ctx.beginPath();
-    ctx.arc(x, r, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  // 下边齿孔
-  for (let i = 0; i < nx; i++) {
-    const x = (i + 0.5) * stepX;
-    ctx.beginPath();
-    ctx.arc(x, H - r, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  // 左边齿孔
-  for (let i = 0; i < ny; i++) {
-    const y = (i + 0.5) * stepY;
-    ctx.beginPath();
-    ctx.arc(r, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  // 右边齿孔
-  for (let i = 0; i < ny; i++) {
-    const y = (i + 0.5) * stepY;
-    ctx.beginPath();
-    ctx.arc(W - r, y, r, 0, Math.PI * 2);
-    ctx.fill();
+    const cx = (i + 0.5) * stepX;
+    path.lineTo(cx - r, 0);
+    path.arc(cx, 0, r, Math.PI, 0, true); // 向下凹的半圆
   }
 
-  ctx.globalCompositeOperation = 'source-over';
+  // 右边：从上到下
+  for (let i = 0; i < ny; i++) {
+    const cy = (i + 0.5) * stepY;
+    path.lineTo(W, cy - r);
+    path.arc(W, cy, r, Math.PI * 1.5, Math.PI * 0.5, true); // 向左凹的半圆
+  }
+
+  // 下边：从右到左
+  for (let i = nx - 1; i >= 0; i--) {
+    const cx = (i + 0.5) * stepX;
+    path.lineTo(cx + r, H);
+    path.arc(cx, H, r, 0, Math.PI, true); // 向上凹的半圆
+  }
+
+  // 左边：从下到上
+  for (let i = ny - 1; i >= 0; i--) {
+    const cy = (i + 0.5) * stepY;
+    path.lineTo(0, cy + r);
+    path.arc(0, cy, r, Math.PI * 0.5, Math.PI * 1.5, true); // 向右凹的半圆
+  }
+
+  path.closePath();
+  return path;
 }
 
 export default function CropStage({ onPress }) {
@@ -219,32 +221,63 @@ export default function CropStage({ onPress }) {
       outH = mmToPx(size.h);
     const k = outW / f.w;
 
-    // 烘焙底图
-    const base = document.createElement('canvas');
-    base.width = outW;
-    base.height = outH;
-    const bctx = base.getContext('2d');
-    bctx.drawImage(
+    // 邮票模板：白边内缩距离
+    const margin = 8;
+
+    // 创建邮票（固定模板 + 中间填照片）
+    const stampCanvas = document.createElement('canvas');
+    stampCanvas.width = outW;
+    stampCanvas.height = outH;
+    const sctx = stampCanvas.getContext('2d');
+
+    // 1) 白纸底（齿孔形状）
+    sctx.fillStyle = '#f6f1e6';
+    const stampPath = createStampPath(outW, outH);
+    sctx.fill(stampPath);
+
+    // 2) 中间画面区填照片
+    sctx.save();
+    sctx.rect(margin, margin, outW - margin * 2, outH - margin * 2);
+    sctx.clip();
+    sctx.drawImage(
       imgElRef.current,
       (v.tx - f.x) * k,
       (v.ty - f.y) * k,
       nat.w * v.scale * k,
       nat.h * v.scale * k
     );
+    sctx.restore();
 
-    // 应用齿孔 - 挖出四边的圆形孔
-    applyStampPerforations(bctx, outW, outH);
+    // 3) 用齿孔轮廓裁形（确保边界规整）
+    sctx.globalCompositeOperation = 'destination-in';
+    sctx.fill(stampPath);
+    sctx.globalCompositeOperation = 'source-over';
 
-    const stampUrl = base.toDataURL('image/png');
+    const stampUrl = stampCanvas.toDataURL('image/png');
 
-    // 生成缩略图（同样应用齿孔）
+    // 生成缩略图（同样的模板）
     const thumb = document.createElement('canvas');
     const thumbSize = 300;
     thumb.width = thumbSize;
     thumb.height = Math.round(thumbSize * (outH / outW));
     const tctx = thumb.getContext('2d');
-    tctx.drawImage(base, 0, 0, thumb.width, thumb.height);
-    applyStampPerforations(tctx, thumb.width, thumb.height);
+
+    const thumbMargin = Math.round(margin * (thumb.width / outW));
+
+    tctx.fillStyle = '#f6f1e6';
+    const thumbPath = createStampPath(thumb.width, thumb.height);
+    tctx.fill(thumbPath);
+
+    tctx.save();
+    tctx.rect(thumbMargin, thumbMargin, thumb.width - thumbMargin * 2, thumb.height - thumbMargin * 2);
+    tctx.clip();
+    tctx.drawImage(stampCanvas, 0, 0, thumb.width, thumb.height);
+    tctx.restore();
+
+    tctx.globalCompositeOperation = 'destination-in';
+    tctx.fill(thumbPath);
+    tctx.globalCompositeOperation = 'source-over';
+
     const thumbUrl = thumb.toDataURL('image/png');
 
     onPress({ stampUrl, thumbUrl, size: size.label, sizeKey });

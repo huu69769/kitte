@@ -32,7 +32,7 @@ function createStampPath(W, H, toothSize = 10) {
   const ny = Math.max(4, Math.round(H / toothSize));
   const stepX = W / nx;
   const stepY = H / ny;
-  const r = Math.min(stepX, stepY) * 0.42;
+  const r = Math.min(stepX, stepY) * 0.48;
 
   const path = new Path2D();
 

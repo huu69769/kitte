@@ -28,41 +28,42 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
-// 在邮票边上打齿孔（destination-out）
-function applyStampPerforations(ctx, W, H, toothSize = TOOTH_SIZE) {
-  const margin = 1;
-  const nx = Math.max(2, Math.round((W - margin * 2) / toothSize));
-  const ny = Math.max(2, Math.round((H - margin * 2) / toothSize));
-  const stepX = (W - margin * 2) / nx;
-  const stepY = (H - margin * 2) / ny;
-  const r = Math.min(stepX, stepY) * 0.38;
+// 在邮票边上打齿孔（destination-out），四个角避免重叠
+function punchPerforations(ctx, W, H, opts = {}) {
+  const toothSpacing = opts.toothSpacing || 14;
+  const holeRadius = opts.holeRadius || 5;
+  const margin = opts.margin || 0;
+  const cornerInset = opts.cornerInset || toothSpacing * 1.5;
 
-  ctx.fillStyle = 'rgba(0,0,0,1)';
+  ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
+  ctx.fillStyle = '#000';
 
-  // 上下边齿孔（固定22个）
-  for (let i = 0; i < nx; i++) {
-    const x = margin + (i + 0.5) * stepX;
+  const punch = (cx, cy) => {
     ctx.beginPath();
-    ctx.arc(x, margin, r, 0, Math.PI * 2);
+    ctx.arc(cx, cy, holeRadius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.beginPath();
-    ctx.arc(x, H - margin, r, 0, Math.PI * 2);
-    ctx.fill();
+  };
+
+  // 上下边：x 方向，跳过四角
+  const usableW = W - cornerInset * 2;
+  const nx = Math.max(1, Math.round(usableW / toothSpacing));
+  for (let i = 0; i <= nx; i++) {
+    const cx = cornerInset + (usableW * i / nx);
+    punch(cx, margin);
+    punch(cx, H - margin);
   }
 
-  // 左右边齿孔（固定16个）
-  for (let i = 0; i < ny; i++) {
-    const y = margin + (i + 0.5) * stepY;
-    ctx.beginPath();
-    ctx.arc(margin, y, r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(W - margin, y, r, 0, Math.PI * 2);
-    ctx.fill();
+  // 左右边：y 方向，跳过四角
+  const usableH = H - cornerInset * 2;
+  const ny = Math.max(1, Math.round(usableH / toothSpacing));
+  for (let j = 0; j <= ny; j++) {
+    const cy = cornerInset + (usableH * j / ny);
+    punch(margin, cy);
+    punch(W - margin, cy);
   }
 
-  ctx.globalCompositeOperation = 'source-over';
+  ctx.restore();
 }
 
 const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
@@ -240,8 +241,13 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
       nat.h * v.scale * k
     );
 
-    // 2) 在边上打齿孔孔（用 destination-out）
-    applyStampPerforations(sctx, outW, outH, TOOTH_SIZE);
+    // 2) 在边上打齿孔（用 destination-out，四角避免重叠）
+    punchPerforations(sctx, outW, outH, {
+      toothSpacing: TOOTH_SIZE,
+      holeRadius: TOOTH_SIZE * 0.38,
+      margin: 0,
+      cornerInset: TOOTH_SIZE * 1.5,
+    });
 
     const stampUrl = stampCanvas.toDataURL('image/png');
 

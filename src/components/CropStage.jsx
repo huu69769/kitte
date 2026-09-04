@@ -246,7 +246,7 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
       toothSpacing: TOOTH_SIZE,
       holeRadius: TOOTH_SIZE * 0.38,
       margin: 0,
-      cornerInset: TOOTH_SIZE * 1.5,
+      cornerInset: TOOTH_SIZE * 0.6,
     });
 
     const stampUrl = stampCanvas.toDataURL('image/png');

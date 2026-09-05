@@ -13,7 +13,7 @@ const DPI = 600;
 const mmToPx = (mm) => Math.round((mm / 25.4) * DPI);
 const STAGE = 380;
 const PERF = { count: 0.5, depth: 1.0 };
-const HOLE_RADIUS = 6.7;      // 固定孔半径，锁住当前满意的大小
+const HOLE_RADIUS = 7;        // 固定孔半径，锁住当前满意的大小
 const TOOTH_SPACING = 42;     // 间距（控制孔的稀疏度，不影响孔大小）
 
 function computeFrame(size) {

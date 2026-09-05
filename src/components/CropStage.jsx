@@ -34,6 +34,8 @@ function punchPerforations(ctx, W, H, opts = {}) {
   const r = opts.holeRadius || 5;
   const inset = opts.cornerInset ?? spacing * 0.6;
 
+  console.log('🔧 punchPerforations called:', { W, H, spacing, r, inset });
+
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
   ctx.fillStyle = '#000';

@@ -90,14 +90,40 @@ function App() {
       >
         <div
           style={{
-            fontSize: 14,
-            fontWeight: 600,
-            letterSpacing: 3,
-            color: theme.ink,
-            textTransform: 'uppercase',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: 2,
           }}
         >
-          {t('title', lang)}
+          <div
+            style={{
+              fontFamily: "'Noto Serif SC', serif",
+              fontSize: 18,
+              fontWeight: 700,
+              letterSpacing: 2,
+              color: '#3a2a1a',
+              textShadow: '0.5px 0.5px 0 rgba(58,42,26,0.25), -0.3px 0.3px 0 rgba(58,42,26,0.15)',
+              transform: 'rotate(-1.5deg)',
+              display: 'inline-block',
+            }}
+          >
+            {t('title', lang)}
+          </div>
+          <div
+            style={{
+              fontFamily: "'Special Elite', monospace",
+              fontSize: 10,
+              fontWeight: 400,
+              letterSpacing: 4,
+              color: '#3a2a1a',
+              opacity: 0.75,
+              textShadow: '0.3px 0.3px 0 rgba(58,42,26,0.2)',
+              textTransform: 'uppercase',
+            }}
+          >
+            Stamp Works
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           {album && (

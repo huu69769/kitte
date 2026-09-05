@@ -221,9 +221,11 @@ function TextBlock({ block, stageW, stageH, selected, editing, onStartDrag, onSe
 
   const common = {
     position: 'absolute',
-    left: block.nx * stageW,
-    top: block.ny * stageH,
-    transform: `translate(-50%,-50%) rotate(${block.rotate}deg)`,
+    left: 0,
+    top: 0,
+    // 同样用 transform 定位而非 left/top：拖动时 iOS 不会留残像（PRD §6-4）
+    transform: `translate3d(${block.nx * stageW}px, ${block.ny * stageH}px, 0) translate(-50%,-50%) rotate(${block.rotate}deg)`,
+    backfaceVisibility: 'hidden',
     fontFamily: family,
     fontSize: px,
     fontWeight: preset.weight,
@@ -737,11 +739,14 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
         return (
           <div key={name} onPointerDown={startToolDrag(name)}
             style={{
-              position: 'absolute', left: s.x, top: s.y, transform: 'translate(-50%,-50%)',
+              position: 'absolute', left: 0, top: 0,
+              transform: `translate3d(${s.x}px, ${s.y}px, 0) translate(-50%,-50%)`,
+              backfaceVisibility: 'hidden',
               zIndex: 20, cursor: 'grab', touchAction: 'none',
-              filter: 'drop-shadow(0 8px 12px rgba(0,0,0,.45))',
             }}>
-            <ToolArt name={name} ink={inkColor} />
+            <div style={{ filter: 'drop-shadow(0 8px 12px rgba(0,0,0,.45))' }}>
+              <ToolArt name={name} ink={inkColor} />
+            </div>
           </div>
         );
       })}
@@ -749,11 +754,15 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       {/* 手上的工具（跟随指针）*/}
       {dragging && !tools[dragging].docked && (
         <div style={{
-          position: 'absolute', left: tools[dragging].x, top: tools[dragging].y,
-          transform: 'translate(-50%,-72%)', zIndex: 50, pointerEvents: 'none',
-          filter: 'drop-shadow(0 12px 16px rgba(0,0,0,.5))',
+          position: 'absolute', left: 0, top: 0,
+          // 跟随手指的工具：transform 移动 + 阴影下沉到内层，否则 iOS 上拖出一路残像
+          transform: `translate3d(${tools[dragging].x}px, ${tools[dragging].y}px, 0) translate(-50%,-72%)`,
+          willChange: 'transform', backfaceVisibility: 'hidden',
+          zIndex: 50, pointerEvents: 'none',
         }}>
-          <ToolArt name={dragging} ink={inkColor} />
+          <div style={{ filter: 'drop-shadow(0 12px 16px rgba(0,0,0,.5))' }}>
+            <ToolArt name={dragging} ink={inkColor} />
+          </div>
         </div>
       )}
 

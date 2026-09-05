@@ -171,16 +171,18 @@ export default function Album({ stamps = [], lang = 'zh' }) {
               onPointerCancel={onPointerUp}
               style={{
                 position: 'absolute',
-                left: pos.nx * Math.max(0, box.w - d.w),
-                top: pos.ny * Math.max(0, box.h - d.h),
+                left: 0,
+                top: 0,
                 width: d.w,
                 height: d.h,
                 cursor: isAnimating ? 'grabbing' : 'grab',
-                transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
+                // 用 transform 移动（GPU 合成），不改 left/top：
+                // iOS Safari 下改 left/top 会留残像——drop-shadow 让绘制范围
+                // 超出布局盒，旧位置的阴影像素不会被失效重绘（PRD §6-4）
+                transform: `translate3d(${pos.nx * Math.max(0, box.w - d.w)}px, ${pos.ny * Math.max(0, box.h - d.h)}px, 0) scale(${isAnimating ? 1.05 : 1})`,
                 transition: isAnimating ? 'none' : 'transform 0.2s ease-out',
-                filter: isAnimating
-                  ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))'
-                  : 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                willChange: isAnimating ? 'transform' : 'auto',
+                backfaceVisibility: 'hidden',
                 touchAction: 'none',   // 只有邮票本身吃触摸，空白处照常滚页面
               }}
             >
@@ -194,6 +196,10 @@ export default function Album({ stamps = [], lang = 'zh' }) {
                   objectFit: 'contain',
                   userSelect: 'none',
                   pointerEvents: 'none',
+                  // 阴影挂在内层图上，和"会动的那层"分开，避免绘制范围溢出合成层
+                  filter: isAnimating
+                    ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))'
+                    : 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
                 }}
               />
             </div>

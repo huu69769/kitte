@@ -28,12 +28,11 @@ function computeFrame(size) {
   return { x: (STAGE - fw) / 2, y: (STAGE - fh) / 2, w: fw, h: fh };
 }
 
-// 在邮票边上打齿孔（destination-out），四个角避免重叠
+// 在邮票边上打齿孔（destination-out），四角切平、孔不溢出
 function punchPerforations(ctx, W, H, opts = {}) {
-  const toothSpacing = opts.toothSpacing || 14;
-  const holeRadius = opts.holeRadius || 5;
-  const margin = opts.margin || 0;
-  const cornerInset = opts.cornerInset || toothSpacing * 1.5;
+  const spacing = opts.toothSpacing || 14;
+  const r = opts.holeRadius || 5;
+  const inset = opts.cornerInset ?? spacing * 0.6;
 
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
@@ -41,26 +40,26 @@ function punchPerforations(ctx, W, H, opts = {}) {
 
   const punch = (cx, cy) => {
     ctx.beginPath();
-    ctx.arc(cx, cy, holeRadius, 0, Math.PI * 2);
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fill();
   };
 
-  // 上下边：x 方向，跳过四角
-  const usableW = W - cornerInset * 2;
-  const nx = Math.max(1, Math.round(usableW / toothSpacing));
+  // 上下边：孔心 x 在 [inset, W-inset]，孔心在边线上 (y=0/y=H)
+  const usableW = W - inset * 2;
+  const nx = Math.max(1, Math.round(usableW / spacing));
   for (let i = 0; i <= nx; i++) {
-    const cx = cornerInset + (usableW * i / nx);
-    punch(cx, margin);
-    punch(cx, H - margin);
+    const cx = inset + (usableW * i / nx);
+    punch(cx, 0);     // 上边孔心在 y=0
+    punch(cx, H);     // 下边孔心在 y=H
   }
 
-  // 左右边：y 方向，跳过四角
-  const usableH = H - cornerInset * 2;
-  const ny = Math.max(1, Math.round(usableH / toothSpacing));
+  // 左右边：孔心 y 在 [inset, H-inset]，孔心在边线上 (x=0/x=W)
+  const usableH = H - inset * 2;
+  const ny = Math.max(1, Math.round(usableH / spacing));
   for (let j = 0; j <= ny; j++) {
-    const cy = cornerInset + (usableH * j / ny);
-    punch(margin, cy);
-    punch(W - margin, cy);
+    const cy = inset + (usableH * j / ny);
+    punch(0, cy);     // 左边孔心在 x=0
+    punch(W, cy);     // 右边孔心在 x=W
   }
 
   ctx.restore();

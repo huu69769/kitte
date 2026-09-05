@@ -13,7 +13,8 @@ const DPI = 600;
 const mmToPx = (mm) => Math.round((mm / 25.4) * DPI);
 const STAGE = 380;
 const PERF = { count: 0.5, depth: 1.0 };
-const TOOTH_SIZE = 32;
+const HOLE_RADIUS = 6.7;      // 固定孔半径，锁住当前满意的大小
+const TOOTH_SPACING = 42;     // 间距（控制孔的稀疏度，不影响孔大小）
 
 function computeFrame(size) {
   const pad = 30;
@@ -30,8 +31,8 @@ function computeFrame(size) {
 
 // 在邮票边上打齿孔（destination-out），四角正好有孔
 function punchPerforations(ctx, W, H, opts = {}) {
-  const spacing = opts.toothSpacing || 24;
-  const r = opts.holeRadius || spacing * 0.42;
+  const spacing = opts.toothSpacing || TOOTH_SPACING;
+  const r = HOLE_RADIUS;
 
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
@@ -235,8 +236,7 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
 
     // 2) 在边上打齿孔（用 destination-out，四角正好有孔）
     punchPerforations(sctx, outW, outH, {
-      toothSpacing: TOOTH_SIZE,
-      holeRadius: TOOTH_SIZE * 0.42,
+      toothSpacing: TOOTH_SPACING,
     });
 
     const stampUrl = stampCanvas.toDataURL('image/png');

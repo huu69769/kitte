@@ -231,11 +231,15 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
       outH = mmToPx(size.h);
     const k = outW / f.w;
 
+    console.log('🎬 bake() start:', { sizeKey, outW, outH, k, hasImg });
+
     // 创建邮票（照片直接铺满 + 齿孔轮廓裁形）
     const stampCanvas = document.createElement('canvas');
     stampCanvas.width = outW;
     stampCanvas.height = outH;
     const sctx = stampCanvas.getContext('2d');
+
+    console.log('✓ Canvas created:', { width: stampCanvas.width, height: stampCanvas.height });
 
     // 1) 填照片
     sctx.drawImage(
@@ -246,6 +250,8 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
       nat.h * v.scale * k
     );
 
+    console.log('✓ Image drawn on canvas');
+
     // 2) 在边上打齿孔（用 destination-out，四角避免重叠）
     punchPerforations(sctx, outW, outH, {
       toothSpacing: TOOTH_SIZE,
@@ -254,7 +260,10 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
       cornerInset: TOOTH_SIZE * 0.6,
     });
 
+    console.log('✓ Perforations punched');
+
     const stampUrl = stampCanvas.toDataURL('image/png');
+    console.log('📦 Stamp URL generated, length:', stampUrl.length);
 
     // 生成缩略图（同样的逻辑）
     const thumb = document.createElement('canvas');

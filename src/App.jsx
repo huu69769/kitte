@@ -17,6 +17,7 @@ function App() {
   const [lang, setLang] = useState('zh');
   const [view, setView] = useState('press');   // 'press' | 'desk'
   const [deskStamp, setDeskStamp] = useState(null);
+  const [albumLayout, setAlbumLayout] = useState({});   // 集邮册摆放位置，跨工作台往返保留
   const cropRef = useRef(null);
   const fileInputRef = useRef(null);
   const nextNo = { current: 1 };
@@ -71,9 +72,13 @@ function App() {
     setView('desk');
   };
 
-  // 工作台完成：加工版进集邮册，原坯从暂存台删除（PRD：收进即删）
+  // 工作台完成：
+  //  - 从暂存台来的，加工版进集邮册、原坯从暂存台删除（PRD：收进即删）
+  //  - 从集邮册回来重编辑的，原位替换（id 不变，摆放位置也就不会跳）
   const handleDeskFinish = (baked) => {
-    setStamps((prev) => [...prev, baked]);
+    setStamps((prev) => (prev.some((s) => s.id === baked.id)
+      ? prev.map((s) => (s.id === baked.id ? baked : s))
+      : [...prev, baked]));
     setTray((t) => t.filter((s) => s.id !== baked.id));
     setDeskStamp(null);
     setView('press');
@@ -84,6 +89,7 @@ function App() {
   if (view === 'desk') {
     return (
       <StampDesk
+        key={deskStamp?.id || 'empty'}
         stamp={deskStamp}
         lang={lang}
         onBack={() => { setView('press'); setDeskStamp(null); }}
@@ -326,7 +332,13 @@ function App() {
       {/* 集邮册 */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: 1200 }}>
-          <Album stamps={stamps} lang={lang} />
+          <Album
+            stamps={stamps}
+            lang={lang}
+            onEdit={handleSendToDesk}
+            layout={albumLayout}
+            setLayout={setAlbumLayout}
+          />
         </div>
       </div>
 

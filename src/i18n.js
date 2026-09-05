@@ -65,6 +65,7 @@ const translations = {
     inkRed: '朱红',
     inkBlack: '墨黑',
     inkWhite: '白',
+    continueEdit: '继续编辑',
   },
   ja: {
     title: '切手工房',
@@ -132,6 +133,7 @@ const translations = {
     inkRed: '朱色',
     inkBlack: '墨',
     inkWhite: '白',
+    continueEdit: '編集を続ける',
   },
 };
 

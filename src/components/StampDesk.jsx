@@ -290,8 +290,17 @@ function TextBlock({ block, stageW, stageH, selected, editing, onStartDrag, onSe
 // ═══════════ 主组件 ═══════════
 
 export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
-  const [texts, setTexts] = useState([]);
-  const [postmarks, setPostmarks] = useState([]);
+  // 从集邮册回来重编辑时，把存下的戳和字还原成可拖可改的图层
+  const [texts, setTexts] = useState(() =>
+    (stamp?.texts || []).map((x) => ({
+      id: x.id, content: x.content, role: x.role,
+      nx: x.x, ny: x.y, size: x.size, rotate: x.rotate, vertical: x.vertical,
+    })));
+  const [postmarks, setPostmarks] = useState(() =>
+    (stamp?.postmarks || []).map((m) => ({
+      id: m.id, nx: m.x, ny: m.y, rot: m.rotate,
+      opacity: m.opacity, color: m.color, date: m.date, year: m.year,
+    })));
   const [tools, setTools] = useState({
     pen: { docked: true, x: 0, y: 0 },
     postmark: { docked: true, x: 0, y: 0 },
@@ -312,6 +321,10 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
   const narrow = vp.w < 680;
   // 舞台随视口缩放，手机上不撑破屏幕
   const stageMax = Math.max(220, Math.min(STAGE_MAX, vp.w - 44, vp.h * 0.4));
+
+  // 素坯（只有照片和齿孔，不含戳和字）。回工作台重编辑时以它为底，
+  // 戳和字作为活图层叠上去，所以反复编辑不会把装饰越叠越厚。
+  const baseUrl = stamp?.baseUrl || stamp?.stampUrl;
 
   const size = STAMP_SIZES[stamp?.sizeKey] || { w: 40, h: 30 };
   const ar = size.w / size.h;
@@ -362,7 +375,6 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
           id: `pm-${Date.now()}`,
           nx: (e.clientX - stageR.left) / stageR.width,
           ny: (e.clientY - stageR.top) / stageR.height,
-          ar,
           rot: (Math.random() - 0.5) * 26,
           opacity: 0.58 + Math.random() * 0.36,
           color: inkColor,
@@ -440,7 +452,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
   const bake = async () => {
     setBaking(true);
     const img = new Image();
-    await new Promise((res) => { img.onload = res; img.src = stamp.stampUrl; });
+    await new Promise((res) => { img.onload = res; img.src = baseUrl; });
 
     const W = img.naturalWidth, H = img.naturalHeight;
     const c = document.createElement('canvas');
@@ -515,8 +527,9 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       ...stamp,
       stampUrl,
       thumbUrl: th.toDataURL('image/png'),
+      baseUrl,   // 留住素坯，之后从集邮册回来还能继续编辑
       texts: texts.map(({ id, content, role, nx, ny, size: s, rotate, vertical }) => ({ id, content, role, x: nx, y: ny, size: s, rotate, vertical })),
-      postmarks: postmarks.map(({ nx, ny, rot, opacity, color }) => ({ x: nx, y: ny, rotate: rot, opacity, color })),
+      postmarks: postmarks.map(({ id, nx, ny, rot, opacity, color, date, year }) => ({ id, x: nx, y: ny, rotate: rot, opacity, color, date, year })),
     });
   };
 
@@ -608,7 +621,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
             cursor: loupeOpen ? 'none' : 'default',
           }}
         >
-          <img src={stamp?.stampUrl} alt="" draggable={false}
+          <img src={baseUrl} alt="" draggable={false}
             style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none', pointerEvents: 'none' }} />
 
           {postmarks.map((m) => (
@@ -643,7 +656,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
                 transform: 'translate(-50%,-50%)', borderRadius: '50%', pointerEvents: 'none',
                 border: `${narrow ? 6 : 8}px solid ${theme.gold}`,
                 boxShadow: '0 10px 24px rgba(0,0,0,.45), inset 0 0 26px rgba(0,0,0,.25)',
-                backgroundImage: `url(${stamp?.stampUrl})`, backgroundRepeat: 'no-repeat',
+                backgroundImage: `url(${baseUrl})`, backgroundRepeat: 'no-repeat',
                 backgroundSize: `${stageW * 2.4}px ${stageH * 2.4}px`,
                 backgroundPosition: `${-loupePos.x * 2.4 + LO / 2}px ${-loupePos.y * 2.4 + LO / 2}px`,
                 overflow: 'hidden',

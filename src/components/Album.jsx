@@ -28,8 +28,9 @@ const STAMP_SIZES = {
 
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
-export default function Album({ stamps = [], lang = 'zh' }) {
-  const [layout, setLayout] = useState({});          // stampId -> {nx, ny} 归一化
+// layout（stampId -> {nx,ny} 归一化）由 App 保管：进工作台时本组件会卸载，
+// 状态放这儿会导致回来后整册重新随机摆位。
+export default function Album({ stamps = [], lang = 'zh', onEdit, layout = {}, setLayout }) {
   const [selectedStamp, setSelectedStamp] = useState(null);
   const [draggingId, setDraggingId] = useState(null);
   const [box, setBox] = useState({ w: 0, h: 0 });    // 实测容器尺寸
@@ -233,6 +234,7 @@ export default function Album({ stamps = [], lang = 'zh' }) {
         <StampPreview
           stamp={stamps.find((s) => s.id === selectedStamp)}
           onClose={() => setSelectedStamp(null)}
+          onEdit={onEdit}
           lang={lang}
         />
       )}
@@ -243,7 +245,7 @@ export default function Album({ stamps = [], lang = 'zh' }) {
 /**
  * 邮票放大查看模态
  */
-function StampPreview({ stamp, onClose, lang = 'zh' }) {
+function StampPreview({ stamp, onClose, onEdit, lang = 'zh' }) {
   if (!stamp) return null;
 
   return (
@@ -305,17 +307,19 @@ function StampPreview({ stamp, onClose, lang = 'zh' }) {
             {t('close', lang)}
           </button>
           <button
+            onClick={() => { onClose(); onEdit?.(stamp); }}
             style={{
-              border: 'none',
+              border: `1px solid ${theme.gold}`,
               borderRadius: 4,
               padding: '9px 18px',
               fontSize: 12,
+              fontWeight: 600,
               background: theme.accent,
               color: '#f6f0e0',
               cursor: 'pointer',
             }}
           >
-            {t('editPending', lang)}
+            ✎ {t('continueEdit', lang)}
           </button>
         </div>
 

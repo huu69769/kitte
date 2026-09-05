@@ -61,6 +61,10 @@ const translations = {
     textPlaceholder: '打字…',
     removePostmark: '点击撤掉这个戳',
     selectedStamp: '正在精修',
+    ink: '印泥',
+    inkRed: '朱红',
+    inkBlack: '墨黑',
+    inkWhite: '白',
   },
   ja: {
     title: '切手工房',
@@ -124,6 +128,10 @@ const translations = {
     textPlaceholder: '入力…',
     removePostmark: 'クリックで消印を取り消す',
     selectedStamp: '仕上げ中',
+    ink: 'インク',
+    inkRed: '朱色',
+    inkBlack: '墨',
+    inkWhite: '白',
   },
 };
 

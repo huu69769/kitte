@@ -31,6 +31,13 @@ const POSTMARK_D = 190;        // 日戳直径（REF 单位）
 
 const HOME = { pen: 0.28, postmark: 0.5, loupe: 0.72 };
 
+// 印泥（日戳油墨色）—— 先做朱红/墨黑/白，以后再加
+const INKS = [
+  { key: 'red', labelKey: 'inkRed', color: theme.stamp.red },
+  { key: 'black', labelKey: 'inkBlack', color: '#22201d' },
+  { key: 'white', labelKey: 'inkWhite', color: '#f7f3ea' },
+];
+
 // 文字角色预设（字号为 REF 单位）
 const ROLE_PRESETS = {
   title: { size: 62, weight: 700, font: 'display', color: '#3b3026', letter: 2 },
@@ -101,13 +108,13 @@ function MuchaDivider({ width }) {
 
 // ═══════════ 工具造型（Art Nouveau，素材位未填时由 SVG 顶着）═══════════
 
-function ToolArt({ name }) {
+function ToolArt({ name, ink }) {
   const slot = { pen: ASSET.toolPen, postmark: ASSET.toolStamp, loupe: ASSET.toolLoupe }[name];
   if (slot?.[0]) {
     return <img src={slot[0]} alt={name} style={{ height: 96, display: 'block' }} draggable={false} />;
   }
   if (name === 'pen') return <PenArt />;
-  if (name === 'postmark') return <PostmarkArt />;
+  if (name === 'postmark') return <PostmarkArt ink={ink} />;
   return <LoupeArt />;
 }
 
@@ -132,7 +139,7 @@ function PenArt() {
   );
 }
 
-function PostmarkArt() {
+function PostmarkArt({ ink = theme.stamp.red }) {
   return (
     <svg width="66" height="96" viewBox="0 0 66 96">
       <defs>
@@ -146,8 +153,8 @@ function PostmarkArt() {
       <ellipse cx="33" cy="52" rx="24" ry="7" fill={theme.gold} opacity=".85" />
       <rect x="9" y="52" width="48" height="24" rx="5" fill="url(#pmWood)" />
       <ellipse cx="33" cy="76" rx="24" ry="9" fill="#3f2b1b" />
-      <circle cx="33" cy="76" r="14" fill="none" stroke={theme.stamp.red} strokeWidth="1.6" opacity=".75" />
-      <circle cx="33" cy="76" r="9" fill="none" stroke={theme.stamp.red} strokeWidth="1" opacity=".6" />
+      <circle cx="33" cy="76" r="14" fill="none" stroke={ink} strokeWidth="1.8" opacity=".9" />
+      <circle cx="33" cy="76" r="9" fill="none" stroke={ink} strokeWidth="1.2" opacity=".75" />
     </svg>
   );
 }
@@ -191,12 +198,12 @@ function PostmarkMark({ mark, stageW, stageH, onRemove, title }) {
       }}
     >
       <svg width={d} height={d} viewBox="0 0 190 190">
-        <circle cx="95" cy="95" r="86" fill="none" stroke={theme.stamp.red} strokeWidth="6" />
-        <circle cx="95" cy="95" r="68" fill="none" stroke={theme.stamp.red} strokeWidth="2.5" />
-        <path d="M18 95 H60 M130 95 H172" stroke={theme.stamp.red} strokeWidth="4" />
-        <text x="95" y="52" textAnchor="middle" fill={theme.stamp.red} fontSize="17" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">STAMP WORKS</text>
-        <text x="95" y="110" textAnchor="middle" fill={theme.stamp.red} fontSize="30" fontWeight="700" fontFamily="monospace">{mark.date}</text>
-        <text x="95" y="146" textAnchor="middle" fill={theme.stamp.red} fontSize="15" fontFamily="monospace" letterSpacing="2">{mark.year}</text>
+        <circle cx="95" cy="95" r="86" fill="none" stroke={mark.color} strokeWidth="6" />
+        <circle cx="95" cy="95" r="68" fill="none" stroke={mark.color} strokeWidth="2.5" />
+        <path d="M18 95 H60 M130 95 H172" stroke={mark.color} strokeWidth="4" />
+        <text x="95" y="52" textAnchor="middle" fill={mark.color} fontSize="17" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">STAMP WORKS</text>
+        <text x="95" y="110" textAnchor="middle" fill={mark.color} fontSize="30" fontWeight="700" fontFamily="monospace">{mark.date}</text>
+        <text x="95" y="146" textAnchor="middle" fill={mark.color} fontSize="15" fontFamily="monospace" letterSpacing="2">{mark.year}</text>
       </svg>
     </div>
   );
@@ -291,6 +298,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
   const [selectedId, setSelectedId] = useState(null);
   const [loupePos, setLoupePos] = useState(null);
   const [baking, setBaking] = useState(false);
+  const [inkColor, setInkColor] = useState(INKS[0].color);
 
   const rootRef = useRef(null);
   const stageRef = useRef(null);
@@ -348,6 +356,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
           ar,
           rot: (Math.random() - 0.5) * 26,
           opacity: 0.58 + Math.random() * 0.36,
+          color: inkColor,
           date: `${now.getMonth() + 1}.${now.getDate()}`,
           year: String(now.getFullYear()),
         }]);
@@ -371,7 +380,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', up);
     };
-  }, [dragging, ar]);
+  }, [dragging, ar, inkColor]);
 
   const dock = (name) => setTools((s) => ({ ...s, [name]: { docked: true, x: 0, y: 0 } }));
 
@@ -438,8 +447,8 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       ctx.translate(m.nx * W, m.ny * H);
       ctx.rotate((m.rot * Math.PI) / 180);
       ctx.globalAlpha = m.opacity;
-      ctx.strokeStyle = theme.stamp.red;
-      ctx.fillStyle = theme.stamp.red;
+      ctx.strokeStyle = m.color;
+      ctx.fillStyle = m.color;
       const R = (POSTMARK_D / 2) * k;
       ctx.lineWidth = 6 * k * (POSTMARK_D / 190);
       ctx.beginPath(); ctx.arc(0, 0, R * (86 / 95), 0, Math.PI * 2); ctx.stroke();
@@ -498,7 +507,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       stampUrl,
       thumbUrl: th.toDataURL('image/png'),
       texts: texts.map(({ id, content, role, nx, ny, size: s, rotate, vertical }) => ({ id, content, role, x: nx, y: ny, size: s, rotate, vertical })),
-      postmarks: postmarks.map(({ nx, ny, rot, opacity }) => ({ x: nx, y: ny, rotate: rot, opacity })),
+      postmarks: postmarks.map(({ nx, ny, rot, opacity, color }) => ({ x: nx, y: ny, rotate: rot, opacity, color })),
     });
   };
 
@@ -715,7 +724,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
               zIndex: 20, cursor: 'grab', touchAction: 'none',
               filter: 'drop-shadow(0 8px 12px rgba(0,0,0,.45))',
             }}>
-            <ToolArt name={name} />
+            <ToolArt name={name} ink={inkColor} />
           </div>
         );
       })}
@@ -727,9 +736,31 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
           transform: 'translate(-50%,-72%)', zIndex: 50, pointerEvents: 'none',
           filter: 'drop-shadow(0 12px 16px rgba(0,0,0,.5))',
         }}>
-          <ToolArt name={dragging} />
+          <ToolArt name={dragging} ink={inkColor} />
         </div>
       )}
+
+      {/* 印泥（日戳油墨色）*/}
+      <div style={{
+        position: 'fixed', right: 20, bottom: DOCK_H + 12, zIndex: 12,
+        display: 'flex', alignItems: 'center', gap: 9,
+        background: 'rgba(59,48,38,.72)', border: `1px solid ${theme.gold}`,
+        borderRadius: 22, padding: '7px 14px', backdropFilter: 'blur(4px)',
+      }}>
+        <span style={{ fontSize: 10, letterSpacing: 2, color: theme.gold }}>{t('ink', lang)}</span>
+        {INKS.map((k) => {
+          const on = inkColor === k.color;
+          return (
+            <button key={k.key} onClick={() => setInkColor(k.color)} title={t(k.labelKey, lang)}
+              style={{
+                width: 22, height: 22, borderRadius: '50%', padding: 0, cursor: 'pointer',
+                background: k.color,
+                border: on ? `2px solid ${theme.gold}` : '2px solid rgba(255,255,255,.22)',
+                boxShadow: on ? '0 0 0 3px rgba(191,155,48,.3)' : 'inset 0 1px 3px rgba(0,0,0,.45)',
+              }} />
+          );
+        })}
+      </div>
 
       {/* 底部工具包 */}
       <div style={{
@@ -754,7 +785,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
               }}
               onPointerEnter={(e) => (e.currentTarget.style.transform = 'translateX(-50%) translateY(-9px)')}
               onPointerLeave={(e) => (e.currentTarget.style.transform = 'translateX(-50%)')}>
-              <ToolArt name={name} />
+              <ToolArt name={name} ink={inkColor} />
             </div>
           ) : null
         ))}

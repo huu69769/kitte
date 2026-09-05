@@ -4,6 +4,7 @@ import { createAlbum, getAllAlbums, createStamp, requestPersistent } from './db'
 import CropStage from './components/CropStage';
 import StampPressMachine from './components/StampPressMachine';
 import TraySidebar from './components/TraySidebar';
+import StampDesk from './components/StampDesk';
 import Album from './components/Album';
 import { t } from './i18n';
 import './App.css';
@@ -14,6 +15,8 @@ function App() {
   const [stamps, setStamps] = useState([]); // 已收进集邮册的邮票
   const [toast, setToast] = useState(null);
   const [lang, setLang] = useState('zh');
+  const [view, setView] = useState('press');   // 'press' | 'desk'
+  const [deskStamp, setDeskStamp] = useState(null);
   const cropRef = useRef(null);
   const fileInputRef = useRef(null);
   const nextNo = { current: 1 };
@@ -61,6 +64,33 @@ function App() {
     setStamps((prev) => [...prev, ...toAdd]);
     setTray((t) => t.filter((s) => !stampIds.includes(s.id)));
   };
+
+  // 送去工作台精修
+  const handleSendToDesk = (stamp) => {
+    setDeskStamp(stamp);
+    setView('desk');
+  };
+
+  // 工作台完成：加工版进集邮册，原坯从暂存台删除（PRD：收进即删）
+  const handleDeskFinish = (baked) => {
+    setStamps((prev) => [...prev, baked]);
+    setTray((t) => t.filter((s) => s.id !== baked.id));
+    setDeskStamp(null);
+    setView('press');
+    setToast(t('finishToAlbum', lang));
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  if (view === 'desk') {
+    return (
+      <StampDesk
+        stamp={deskStamp}
+        lang={lang}
+        onBack={() => { setView('press'); setDeskStamp(null); }}
+        onFinish={handleDeskFinish}
+      />
+    );
+  }
 
   return (
     <div
@@ -131,6 +161,23 @@ function App() {
               {album.title}
             </div>
           )}
+          <button
+            onClick={() => setView('desk')}
+            style={{
+              background: 'transparent',
+              color: theme.accent,
+              border: `1px solid ${theme.accent}`,
+              padding: '6px 14px',
+              borderRadius: 4,
+              fontSize: 11,
+              cursor: 'pointer',
+              fontWeight: 600,
+              letterSpacing: 1,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            ✎ {t('desk', lang)}
+          </button>
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => setLang('zh')}
@@ -268,6 +315,7 @@ function App() {
           tray={tray}
           onRemove={handleRemove}
           onAddToAlbum={handleAddToAlbum}
+          onSendToDesk={handleSendToDesk}
           lang={lang}
         />
       </div>

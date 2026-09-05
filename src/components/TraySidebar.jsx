@@ -4,7 +4,7 @@ import { t } from '../i18n';
 
 const TRAY_LIMIT = 20;
 
-export default function TraySidebar({ tray, onRemove, onAddToAlbum, lang = 'zh' }) {
+export default function TraySidebar({ tray, onRemove, onAddToAlbum, onSendToDesk, lang = 'zh' }) {
   const [selected, setSelected] = useState({});
   const [viewing, setViewing] = useState(null);
 
@@ -180,12 +180,31 @@ export default function TraySidebar({ tray, onRemove, onAddToAlbum, lang = 'zh' 
             </span>
             <button
               onClick={() => {
+                onSendToDesk?.(viewing);
+                setViewing(null);
+              }}
+              style={{
+                background: theme.accent,
+                color: '#f6f0e0',
+                border: `1px solid ${theme.gold}`,
+                borderRadius: 5,
+                padding: '6px 14px',
+                fontSize: 12,
+                cursor: 'pointer',
+                fontWeight: 700,
+                letterSpacing: 0.5,
+              }}
+            >
+              ✎ {t('goToDesk', lang)}
+            </button>
+            <button
+              onClick={() => {
                 onAddToAlbum([viewing.id]);
                 setViewing(null);
               }}
               style={{
-                background: '#c9a24b',
-                color: '#3d2b1f',
+                background: theme.gold,
+                color: theme.ink,
                 border: 'none',
                 borderRadius: 5,
                 padding: '6px 12px',

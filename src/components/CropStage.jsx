@@ -49,8 +49,10 @@ function punchPerforations(ctx, W, H, opts = {}) {
   // 上下边：孔心 x 在 [inset, W-inset]，孔心在边线上 (y=0/y=H)
   const usableW = W - inset * 2;
   const nx = Math.max(1, Math.round(usableW / spacing));
+  console.log('  Top/Bottom: nx=', nx, 'usableW=', usableW);
   for (let i = 0; i <= nx; i++) {
     const cx = inset + (usableW * i / nx);
+    console.log(`    punch top (${cx}, 0) and bottom (${cx}, ${H})`);
     punch(cx, 0);     // 上边孔心在 y=0
     punch(cx, H);     // 下边孔心在 y=H
   }
@@ -58,8 +60,10 @@ function punchPerforations(ctx, W, H, opts = {}) {
   // 左右边：孔心 y 在 [inset, H-inset]，孔心在边线上 (x=0/x=W)
   const usableH = H - inset * 2;
   const ny = Math.max(1, Math.round(usableH / spacing));
+  console.log('  Left/Right: ny=', ny, 'usableH=', usableH);
   for (let j = 0; j <= ny; j++) {
     const cy = inset + (usableH * j / ny);
+    console.log(`    punch left (0, ${cy}) and right (${W}, ${cy})`);
     punch(0, cy);     // 左边孔心在 x=0
     punch(W, cy);     // 右边孔心在 x=W
   }

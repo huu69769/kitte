@@ -102,8 +102,9 @@ function App() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '40px 20px 100px',
-        gap: 48,
+        padding: 'clamp(20px, 4vw, 40px) clamp(12px, 3vw, 20px) 80px',
+        gap: 'clamp(28px, 5vw, 48px)',
+        overflowX: 'hidden',
       }}
     >
       {/* 标题 */}
@@ -114,7 +115,9 @@ function App() {
           width: '100%',
           maxWidth: '100%',
           alignItems: 'center',
-          paddingBottom: 24,
+          flexWrap: 'wrap',
+          gap: 12,
+          paddingBottom: 20,
           borderBottom: `1px solid ${theme.line}`,
         }}
       >
@@ -221,13 +224,13 @@ function App() {
           display: 'flex',
           justifyContent: 'center',
           width: '100%',
-          gap: 60,
+          gap: 'clamp(24px, 5vw, 60px)',
           flexWrap: 'wrap',
           alignItems: 'flex-start',
         }}
       >
         {/* 左侧控制面板 */}
-        <div style={{ width: 200, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ width: 200, maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: 20 }}>
           <button
             onClick={() => fileInputRef.current?.click()}
             style={{

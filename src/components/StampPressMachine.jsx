@@ -26,8 +26,9 @@ export default function StampPressMachine({ cropRef, onPress }) {
     <div
       style={{
         position: "relative",
-        height: 380,
+        height: "clamp(240px, 46vw, 380px)",
         width: "auto",
+        maxWidth: "100%",
         transform: shake ? "translateY(2px)" : "translateY(0)",
         transition: "transform .04s",
         cursor: phase === "idle" ? "pointer" : "default",

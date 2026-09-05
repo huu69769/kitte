@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import theme from '../theme';
 import { t } from '../i18n';
+import useViewport from '../useViewport';
 
 const SIZES = [
   { key: '40x30', label: '横版', w: 40, h: 30 },
@@ -82,6 +83,12 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
   const size = SIZES.find((s) => s.key === sizeKey);
   const frame = computeFrame(size);
   const hasImg = !!nat;
+
+  // 手机适配：取景台内部坐标系恒为 STAGE(380)，整体用 transform 缩放显示。
+  // 所有已验证的 cover/EXIF/clamp 数学都在 380 空间里不动，
+  // 只把指针位移按 k 折算回去（见 onMove / onWheel）。
+  const vp = useViewport();
+  const stageScale = Math.min(1, (vp.w - 40) / STAGE);
 
   const coverScale = (f, n) => Math.max(f.w / n.w, f.h / n.h);
   const clamp = (v, f, n) => {
@@ -168,8 +175,9 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
   };
   const onMove = (e) => {
     if (!drag.current.on) return;
-    const dx = e.clientX - drag.current.x,
-      dy = e.clientY - drag.current.y;
+    // 屏幕位移 ÷ 缩放系数 = 取景台内部位移
+    const dx = (e.clientX - drag.current.x) / stageScale,
+      dy = (e.clientY - drag.current.y) / stageScale;
     drag.current.x = e.clientX;
     drag.current.y = e.clientY;
     setView((v) => clamp({ ...v, tx: v.tx + dx, ty: v.ty + dy }, frame, nat));
@@ -200,8 +208,8 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
     const r = stageRef.current.getBoundingClientRect();
     zoomAround(
       (view.scale / view.base) * (e.deltaY < 0 ? 1.08 : 0.926),
-      e.clientX - r.left,
-      e.clientY - r.top
+      (e.clientX - r.left) / stageScale,
+      (e.clientY - r.top) / stageScale
     );
   };
 
@@ -259,7 +267,8 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
 
   return (
     <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
-      {/* 取景舞台 */}
+      {/* 取景舞台（外层按比例占位，内层保持 380 内部坐标系）*/}
+      <div style={{ width: STAGE * stageScale, height: STAGE * stageScale, flex: 'none' }}>
       <div
         ref={stageRef}
         onPointerDown={onDown}
@@ -270,6 +279,9 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
           position: 'relative',
           width: STAGE,
           height: STAGE,
+          boxSizing: 'border-box',
+          transform: `scale(${stageScale})`,
+          transformOrigin: '0 0',
           background: theme.bgLight,
           border: `2px solid ${theme.line}`,
           borderRadius: 8,
@@ -324,6 +336,7 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
             }}
           />
         )}
+      </div>
       </div>
 
       {/* 右侧控制面板 */}

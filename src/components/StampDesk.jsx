@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import theme from '../theme';
 import { ASSET } from '../assets';
 import { t } from '../i18n';
+import useViewport from '../useViewport';
 
 /**
  * 工作台 · 集邮书桌（缪夏 / Art Nouveau）
@@ -50,6 +51,7 @@ const ROLE_KEYS = ['title', 'subtitle', 'denom', 'country', 'free'];
 
 const inRect = (r, x, y, pad = HIT_PAD) =>
   x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+
 
 // ═══════════ 缪夏装饰（素材位未填时由 SVG 顶着）═══════════
 
@@ -304,10 +306,15 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
   const stageRef = useRef(null);
   const textDrag = useRef(null);
 
+  const vp = useViewport();
+  const narrow = vp.w < 680;
+  // 舞台随视口缩放，手机上不撑破屏幕
+  const stageMax = Math.max(220, Math.min(STAGE_MAX, vp.w - 44, vp.h * 0.4));
+
   const size = STAMP_SIZES[stamp?.sizeKey] || { w: 40, h: 30 };
   const ar = size.w / size.h;
-  let stageW = STAGE_MAX, stageH = STAGE_MAX / ar;
-  if (stageH > STAGE_MAX) { stageH = STAGE_MAX; stageW = STAGE_MAX * ar; }
+  let stageW = stageMax, stageH = stageMax / ar;
+  if (stageH > stageMax) { stageH = stageMax; stageW = stageMax * ar; }
 
   const loupeOpen = !tools.loupe.docked;
 
@@ -547,9 +554,10 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: `30px 20px ${DOCK_H + 40}px`,
-        gap: 20,
-        touchAction: 'none',
+        padding: `30px 16px ${DOCK_H + 84}px`,
+        gap: 18,
+        // 注意：根容器不能设 touch-action:none，否则整页在手机上划不动。
+        // 只有真正要拖的元素（工具/文字/日戳）才设。
         cursor: dragging ? 'grabbing' : 'default',
       }}
     >
@@ -560,21 +568,23 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       }} />
 
       {/* 顶栏 */}
-      <div style={{ width: '100%', maxWidth: 900, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
-        <button onClick={onBack} style={ghostBtn}>← {t('backToPress', lang)}</button>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontFamily: theme.fonts.display, fontSize: 20, letterSpacing: 4, color: theme.bgLight }}>
+      <div style={{ width: '100%', maxWidth: 900, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, zIndex: 2 }}>
+        <button onClick={onBack} style={{ ...ghostBtn, padding: narrow ? '7px 10px' : '7px 13px', fontSize: narrow ? 11 : 12 }}>
+          ← {t('backToPress', lang)}
+        </button>
+        <div style={{ textAlign: 'center', minWidth: 0 }}>
+          <div style={{ fontFamily: theme.fonts.display, fontSize: narrow ? 16 : 20, letterSpacing: narrow ? 2 : 4, color: theme.bgLight, whiteSpace: 'nowrap' }}>
             {t('desk', lang)}
           </div>
-          <div style={{ fontFamily: theme.fonts.mono, fontSize: 9, letterSpacing: 4, color: theme.gold, opacity: .85, marginTop: 3 }}>
+          <div style={{ fontFamily: theme.fonts.mono, fontSize: 9, letterSpacing: narrow ? 2 : 4, color: theme.gold, opacity: .85, marginTop: 3, whiteSpace: 'nowrap' }}>
             {t('deskSub', lang)}
           </div>
         </div>
-        <div style={{ width: 96, textAlign: 'right', fontSize: 11, color: theme.gold, letterSpacing: 1 }}>
+        <div style={{ width: narrow ? 52 : 96, textAlign: 'right', fontSize: narrow ? 10 : 11, color: theme.gold, letterSpacing: 1 }}>
           {stamp ? `No.${String(stamp.no).padStart(3, '0')}` : ''}
         </div>
       </div>
-      <MuchaDivider width={280} />
+      <MuchaDivider width={Math.min(280, vp.w - 60)} />
 
       {/* 工作区 */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -594,7 +604,6 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
             boxShadow: '0 24px 60px rgba(0,0,0,.45)',
             background: theme.stamp.paper,
             cursor: loupeOpen ? 'none' : 'default',
-            touchAction: 'none',
           }}
         >
           <img src={stamp?.stampUrl} alt="" draggable={false}
@@ -624,40 +633,48 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
             />
           ))}
 
-          {loupePos && loupeOpen && (
-            <div style={{
-              position: 'absolute', left: loupePos.x, top: loupePos.y, width: 150, height: 150,
-              transform: 'translate(-50%,-50%)', borderRadius: '50%', pointerEvents: 'none',
-              border: `8px solid ${theme.gold}`,
-              boxShadow: '0 10px 24px rgba(0,0,0,.45), inset 0 0 26px rgba(0,0,0,.25)',
-              backgroundImage: `url(${stamp?.stampUrl})`, backgroundRepeat: 'no-repeat',
-              backgroundSize: `${stageW * 2.4}px ${stageH * 2.4}px`,
-              backgroundPosition: `${-loupePos.x * 2.4 + 75}px ${-loupePos.y * 2.4 + 75}px`,
-              overflow: 'hidden',
-            }} />
-          )}
+          {loupePos && loupeOpen && (() => {
+            const LO = narrow ? 108 : 150;
+            return (
+              <div style={{
+                position: 'absolute', left: loupePos.x, top: loupePos.y, width: LO, height: LO,
+                transform: 'translate(-50%,-50%)', borderRadius: '50%', pointerEvents: 'none',
+                border: `${narrow ? 6 : 8}px solid ${theme.gold}`,
+                boxShadow: '0 10px 24px rgba(0,0,0,.45), inset 0 0 26px rgba(0,0,0,.25)',
+                backgroundImage: `url(${stamp?.stampUrl})`, backgroundRepeat: 'no-repeat',
+                backgroundSize: `${stageW * 2.4}px ${stageH * 2.4}px`,
+                backgroundPosition: `${-loupePos.x * 2.4 + LO / 2}px ${-loupePos.y * 2.4 + LO / 2}px`,
+                overflow: 'hidden',
+              }} />
+            );
+          })()}
         </div>
 
         {/* 四角藤蔓 */}
-        {[[0, 0, false, false], [1, 0, true, false], [0, 1, false, true], [1, 1, true, true]].map(([cx, cy, fx, fy], i) => (
-          <div key={i} style={{
-            position: 'absolute', pointerEvents: 'none',
-            left: cx ? undefined : -34, right: cx ? -34 : undefined,
-            top: cy ? undefined : -34, bottom: cy ? -34 : undefined,
-          }}>
-            <MuchaCorner size={86} flipX={fx} flipY={fy} />
-          </div>
-        ))}
+        {[[0, 0, false, false], [1, 0, true, false], [0, 1, false, true], [1, 1, true, true]].map(([cx, cy, fx, fy], i) => {
+          const cs = narrow ? 56 : 86;
+          const off = -Math.round(cs * 0.4);
+          return (
+            <div key={i} style={{
+              position: 'absolute', pointerEvents: 'none',
+              left: cx ? undefined : off, right: cx ? off : undefined,
+              top: cy ? undefined : off, bottom: cy ? off : undefined,
+            }}>
+              <MuchaCorner size={cs} flipX={fx} flipY={fy} />
+            </div>
+          );
+        })}
       </div>
 
       {/* 文字属性面板 */}
       {selected && (
         <div style={{
-          zIndex: 3, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'center',
+          zIndex: 3, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', justifyContent: 'center',
           background: 'rgba(59,48,38,.72)', border: `1px solid ${theme.gold}`, borderRadius: 10,
-          padding: '10px 16px', backdropFilter: 'blur(4px)', maxWidth: 720,
+          padding: '10px 14px', backdropFilter: 'blur(4px)',
+          maxWidth: Math.min(720, vp.w - 32),
         }}>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
             {ROLE_KEYS.map((r) => (
               <button key={r}
                 onClick={() => patchText(selected.id, { role: r, size: ROLE_PRESETS[r].size })}

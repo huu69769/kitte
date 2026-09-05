@@ -66,6 +66,10 @@ const translations = {
     inkBlack: '墨黑',
     inkWhite: '白',
     continueEdit: '继续编辑',
+    tweezers: '镊子',
+    tweezersHint: '点邮票取下 · 再点镊子放回',
+    stampRemoved: (no) => `已取下 No.${no}`,
+    undo: '撤销',
   },
   ja: {
     title: '切手工房',
@@ -134,6 +138,10 @@ const translations = {
     inkBlack: '墨',
     inkWhite: '白',
     continueEdit: '編集を続ける',
+    tweezers: 'ピンセット',
+    tweezersHint: '切手をタップで取り外し · もう一度で戻す',
+    stampRemoved: (no) => `No.${no} を取り外しました`,
+    undo: '元に戻す',
   },
 };
 

@@ -28,9 +28,40 @@ const STAMP_SIZES = {
 
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
+// 镊子（切手ピンセット）—— 集邮者从册子上夹起邮票的工具，Art Nouveau 黄铜
+function TweezersArt({ h = 110 }) {
+  const ARM_L = "M25 20 C11 46 14 78 28 99";
+  const ARM_R = "M31 20 C45 46 42 78 28 99";
+  return (
+    <svg width={h * 0.54} height={h} viewBox="0 0 56 104" style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id="tzBrass" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#6b5520" />
+          <stop offset=".3" stopColor="#efdb96" />
+          <stop offset=".62" stopColor={theme.gold} />
+          <stop offset="1" stopColor="#4f3d15" />
+        </linearGradient>
+      </defs>
+      {/* 深色打底描边：牛皮纸上也看得清 */}
+      <path d={ARM_L} fill="none" stroke="#4a3a18" strokeWidth="9.5" strokeLinecap="round" />
+      <path d={ARM_R} fill="none" stroke="#4a3a18" strokeWidth="9.5" strokeLinecap="round" />
+      {/* 两条臂：中间留出明显空隙，到尖端才合拢 */}
+      <path d={ARM_L} fill="none" stroke="url(#tzBrass)" strokeWidth="7" strokeLinecap="round" />
+      <path d={ARM_R} fill="none" stroke="url(#tzBrass)" strokeWidth="7" strokeLinecap="round" />
+      {/* 顶端铰接 */}
+      <path d="M28 4 C17 4 13 12 18 21 L38 21 C43 12 39 4 28 4 Z"
+        fill={theme.gold} stroke="#4a3a18" strokeWidth="1" />
+      {/* 新艺术卷草 */}
+      <path d="M15 12 C4 5 13 -5 26 3" fill="none" stroke={theme.gold} strokeWidth="2.8" strokeLinecap="round" />
+      <circle cx="27" cy="3" r="3.6" fill={theme.rose} stroke="#4a3a18" strokeWidth=".8" />
+    </svg>
+  );
+}
+
 // layout（stampId -> {nx,ny} 归一化）由 App 保管：进工作台时本组件会卸载，
 // 状态放这儿会导致回来后整册重新随机摆位。
-export default function Album({ stamps = [], lang = 'zh', onEdit, layout = {}, setLayout }) {
+export default function Album({ stamps = [], lang = 'zh', onEdit, onRemove, layout = {}, setLayout }) {
+  const [tweezers, setTweezers] = useState(false);   // 镊子拿在手上=取下模式
   const [selectedStamp, setSelectedStamp] = useState(null);
   const [draggingId, setDraggingId] = useState(null);
   const [box, setBox] = useState({ w: 0, h: 0 });    // 实测容器尺寸
@@ -124,7 +155,11 @@ export default function Album({ stamps = [], lang = 'zh', onEdit, layout = {}, s
     clearTimeout(longPressRef.current);
     if (!d) return;
     e.currentTarget.releasePointerCapture?.(e.pointerId);
-    if (!d.moved) setSelectedStamp(d.id);   // 没怎么动 = 点击放大
+    if (!d.moved) {
+      // 没怎么动 = 一次点击：拿着镊子就夹走，否则放大查看
+      if (tweezers) onRemove?.(stamps.find((s) => s.id === d.id));
+      else setSelectedStamp(d.id);
+    }
     dragRef.current = null;
     setDraggingId(null);
   };
@@ -185,6 +220,8 @@ export default function Album({ stamps = [], lang = 'zh', onEdit, layout = {}, s
                 willChange: isAnimating ? 'transform' : 'auto',
                 backfaceVisibility: 'hidden',
                 touchAction: 'none',   // 只有邮票本身吃触摸，空白处照常滚页面
+                outline: tweezers ? `1.5px dashed ${theme.gold}` : 'none',
+                outlineOffset: 3,
               }}
             >
               <img
@@ -206,6 +243,37 @@ export default function Album({ stamps = [], lang = 'zh', onEdit, layout = {}, s
             </div>
           );
         })}
+
+        {/* 镊子：搁在页面上的一件工具，点一下拿起来进入取下模式 */}
+        <div style={{
+          position: 'absolute', right: '7%', bottom: '6%', zIndex: 5,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+        }}>
+          {tweezers && (
+            <div style={{
+              background: 'rgba(59,48,38,.82)', color: theme.bgLight,
+              borderRadius: 14, padding: '5px 11px', fontSize: 11, letterSpacing: 1,
+              whiteSpace: 'nowrap', pointerEvents: 'none',
+            }}>
+              {t('tweezersHint', lang)}
+            </div>
+          )}
+          <button
+            onClick={() => setTweezers((v) => !v)}
+            title={t('tweezers', lang)}
+            style={{
+              background: 'transparent', border: 'none', padding: 8, cursor: 'pointer',
+              lineHeight: 0,
+              transform: tweezers ? 'translateY(-10px) rotate(-9deg)' : 'rotate(6deg)',
+              transition: 'transform .16s ease-out',
+              filter: tweezers
+                ? `drop-shadow(0 8px 12px rgba(0,0,0,.45)) drop-shadow(0 0 7px ${theme.gold})`
+                : 'drop-shadow(0 3px 6px rgba(0,0,0,.35))',
+            }}
+          >
+            <TweezersArt />
+          </button>
+        </div>
 
         {/* 空状态 */}
         {stamps.length === 0 && (

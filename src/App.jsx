@@ -18,6 +18,8 @@ function App() {
   const [view, setView] = useState('press');   // 'press' | 'desk'
   const [deskStamp, setDeskStamp] = useState(null);
   const [albumLayout, setAlbumLayout] = useState({});   // 集邮册摆放位置，跨工作台往返保留
+  const [pendingRemove, setPendingRemove] = useState(null);  // 刚取下的那枚，几秒内可撤销
+  const undoTimer = useRef(null);
   const cropRef = useRef(null);
   const fileInputRef = useRef(null);
   const nextNo = { current: 1 };
@@ -65,6 +67,31 @@ function App() {
     setStamps((prev) => [...prev, ...toAdd]);
     setTray((t) => t.filter((s) => !stampIds.includes(s.id)));
   };
+
+  // 用镊子从集邮册取下一枚：先移除，给几秒撤销窗口
+  const handleAlbumRemove = (stamp) => {
+    if (!stamp) return;
+    const idx = stamps.findIndex((s) => s.id === stamp.id);
+    setStamps((prev) => prev.filter((s) => s.id !== stamp.id));
+    setPendingRemove({ stamp, idx });
+    clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setPendingRemove(null), 6000);
+  };
+
+  // 撤销：放回原来的位置和层序（layout 里的坐标一直留着，所以位置不会变）
+  const undoRemove = () => {
+    if (!pendingRemove) return;
+    const { stamp, idx } = pendingRemove;
+    setStamps((prev) => {
+      const n = [...prev];
+      n.splice(idx < 0 ? n.length : Math.min(idx, n.length), 0, stamp);
+      return n;
+    });
+    clearTimeout(undoTimer.current);
+    setPendingRemove(null);
+  };
+
+  useEffect(() => () => clearTimeout(undoTimer.current), []);
 
   // 送去工作台精修
   const handleSendToDesk = (stamp) => {
@@ -336,11 +363,56 @@ function App() {
             stamps={stamps}
             lang={lang}
             onEdit={handleSendToDesk}
+            onRemove={handleAlbumRemove}
             layout={albumLayout}
             setLayout={setAlbumLayout}
           />
         </div>
       </div>
+
+      {/* 取下邮票后的撤销条 */}
+      {pendingRemove && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: theme.ink,
+            color: theme.bgLight,
+            border: `1px solid ${theme.gold}`,
+            padding: '9px 12px 9px 18px',
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            fontSize: 13,
+            zIndex: 1100,
+            maxWidth: 'calc(100vw - 32px)',
+            boxShadow: '0 10px 28px rgba(0,0,0,.32)',
+          }}
+        >
+          <span style={{ whiteSpace: 'nowrap' }}>
+            {t('stampRemoved', lang, String(pendingRemove.stamp.no).padStart(3, '0'))}
+          </span>
+          <button
+            onClick={undoRemove}
+            style={{
+              background: theme.gold,
+              color: theme.ink,
+              border: 'none',
+              borderRadius: 6,
+              padding: '6px 14px',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {t('undo', lang)}
+          </button>
+        </div>
+      )}
 
       {/* Toast 提示 */}
       {toast && (

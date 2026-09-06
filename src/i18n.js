@@ -66,6 +66,11 @@ const translations = {
     inkBlack: '墨黑',
     inkWhite: '白',
     continueEdit: '继续编辑',
+    fontMincho: '宋体',
+    fontNouveau: '新艺术',
+    fontType: '打字机',
+    fontBrush: '楷书',
+    textColor: '颜色',
   },
   ja: {
     title: '切手工房',
@@ -134,6 +139,11 @@ const translations = {
     inkBlack: '墨',
     inkWhite: '白',
     continueEdit: '編集を続ける',
+    fontMincho: '明朝',
+    fontNouveau: 'アール・ヌーヴォー',
+    fontType: 'タイプ',
+    fontBrush: '楷書',
+    textColor: '色',
   },
 };
 

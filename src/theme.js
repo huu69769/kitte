@@ -1,5 +1,11 @@
 import { ASSET, FONTS, PAPER_TYPES } from './assets';
 
+// 排版字体栈（拉丁字体在前，CJK 字体紧随其后）
+const MINCHO = '"Cormorant Garamond", "Noto Serif SC", "Songti SC", "SimSun", serif';
+const NOUVEAU = '"Italiana", "Noto Serif SC", "Songti SC", "SimSun", serif';
+const TYPEWRITER = '"Special Elite", "Noto Serif SC", "Songti SC", "SimSun", monospace';
+const BRUSH = '"Ma Shan Zheng", "KaiTi", "STKaiti", "Noto Serif SC", cursive';
+
 // 缪夏 / Art Nouveau — 新艺术运动装饰风格
 // 配色取自缪夏海报：陈旧象牙底、鼠尾草绿、金赭、陈玫瑰、藤蔓深褐
 export const muchaTheme = {
@@ -26,6 +32,8 @@ export const muchaTheme = {
   roseLight: "#dcae9b",
   mauve: "#8d7f97",      // 柔紫（缪夏常用的雾感色）
   teal: "#4e6f6b",       // 孔雀绿
+  indigo: "#3a4a6b",     // 靛蓝（文字用）
+  ochre: "#9a7b28",      // 金赭（文字用）
   desk: "#4a5c46",       // 工作台桌面（深呢绿）
   deskHi: "#5c7156",     // 桌面高光
   wood: "#7a5a3c",       // 木质工具区
@@ -43,12 +51,21 @@ export const muchaTheme = {
   },
 
   // 字体配置
+  // 四套排版字体一律「拉丁 + CJK」配对：CSS 按字符逐个 fallback，
+  // 拉丁走花体/打字机，汉字走宋体/楷书。只写拉丁字体的话
+  // （Italiana / Cormorant / Special Elite 都没有 CJK 字形）
+  // 中日文会一路掉到系统默认字体，等于没生效。
   fonts: {
     body: '"PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif',
-    serif: '"Cormorant Garamond", "Crimson Text", Georgia, serif',
-    display: '"Italiana", "Cormorant Garamond", Georgia, serif',  // 新艺术标题字
-    mono: '"Special Elite", "Courier New", monospace',
-    kai: '"Noto Serif SC", "KaiTi", serif',
+    mincho: MINCHO,
+    nouveau: NOUVEAU,
+    type: TYPEWRITER,
+    brush: BRUSH,
+    // 旧名保留为别名
+    serif: MINCHO,
+    display: NOUVEAU,
+    mono: TYPEWRITER,
+    kai: BRUSH,
   },
 
   // 素材位（从 assets.js 导入，可随时替换）

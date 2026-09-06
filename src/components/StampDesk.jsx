@@ -39,13 +39,27 @@ const INKS = [
   { key: 'white', labelKey: 'inkWhite', color: '#f7f3ea' },
 ];
 
-// 文字角色预设（字号为 REF 单位）
+// 可选字体（四套都是拉丁+CJK 配对，见 theme.js 里的说明）
+const FONT_CHOICES = [
+  { key: 'mincho', labelKey: 'fontMincho' },
+  { key: 'nouveau', labelKey: 'fontNouveau' },
+  { key: 'type', labelKey: 'fontType' },
+  { key: 'brush', labelKey: 'fontBrush' },
+];
+
+// 可选文字颜色
+const TEXT_COLORS = [
+  theme.ink, theme.stamp.red, theme.indigo,
+  theme.sageDeep, theme.ochre, theme.bgLight,
+];
+
+// 文字角色预设（字号为 REF 单位）——只是新建时的默认值，字体和颜色都可以再改
 const ROLE_PRESETS = {
-  title: { size: 62, weight: 700, font: 'display', color: '#3b3026', letter: 2 },
-  subtitle: { size: 38, weight: 600, font: 'serif', color: '#3b3026', letter: 1 },
-  denom: { size: 74, weight: 700, font: 'display', color: '#a85a44', letter: 0 },
-  country: { size: 30, weight: 600, font: 'mono', color: '#3b3026', letter: 6 },
-  free: { size: 40, weight: 500, font: 'kai', color: '#3b3026', letter: 0 },
+  title: { size: 62, weight: 700, font: 'nouveau', color: theme.ink, letter: 2 },
+  subtitle: { size: 38, weight: 600, font: 'mincho', color: theme.ink, letter: 1 },
+  denom: { size: 74, weight: 700, font: 'mincho', color: theme.stamp.red, letter: 0 },
+  country: { size: 30, weight: 600, font: 'type', color: theme.ink, letter: 6 },
+  free: { size: 40, weight: 500, font: 'brush', color: theme.ink, letter: 0 },
 };
 const ROLE_KEYS = ['title', 'subtitle', 'denom', 'country', 'free'];
 
@@ -217,7 +231,7 @@ function TextBlock({ block, stageW, stageH, selected, editing, onStartDrag, onSe
   const k = stageW / REF_W;
   const preset = ROLE_PRESETS[block.role];
   const px = block.size * k;
-  const family = theme.fonts[preset.font] || theme.fonts.body;
+  const family = theme.fonts[block.font || preset.font] || theme.fonts.body;
 
   const common = {
     position: 'absolute',
@@ -229,7 +243,7 @@ function TextBlock({ block, stageW, stageH, selected, editing, onStartDrag, onSe
     fontFamily: family,
     fontSize: px,
     fontWeight: preset.weight,
-    color: preset.color,
+    color: block.color || preset.color,
     letterSpacing: preset.letter * k,
     whiteSpace: 'nowrap',
     userSelect: 'none',
@@ -293,7 +307,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
   // 从集邮册回来重编辑时，把存下的戳和字还原成可拖可改的图层
   const [texts, setTexts] = useState(() =>
     (stamp?.texts || []).map((x) => ({
-      id: x.id, content: x.content, role: x.role,
+      id: x.id, content: x.content, role: x.role, font: x.font, color: x.color,
       nx: x.x, ny: x.y, size: x.size, rotate: x.rotate, vertical: x.vertical,
     })));
   const [postmarks, setPostmarks] = useState(() =>
@@ -363,6 +377,8 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
           nx: (e.clientX - stageR.left) / stageR.width,
           ny: (e.clientY - stageR.top) / stageR.height,
           size: ROLE_PRESETS.free.size,
+          font: ROLE_PRESETS.free.font,
+          color: ROLE_PRESETS.free.color,
           rotate: 0,
           vertical: false,
         }]);
@@ -451,6 +467,8 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
   // ——— 烘焙：与预览同一套排版规格 ———
   const bake = async () => {
     setBaking(true);
+    // canvas 不会自己等网页字体；不等的话可能用 fallback 字形烘焙，和预览不一致
+    if (document.fonts?.ready) await document.fonts.ready;
     const img = new Image();
     await new Promise((res) => { img.onload = res; img.src = baseUrl; });
 
@@ -499,8 +517,8 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       ctx.save();
       ctx.translate(b.nx * W, b.ny * H);
       ctx.rotate((b.rotate * Math.PI) / 180);
-      ctx.fillStyle = preset.color;
-      ctx.font = `${preset.weight} ${px}px ${theme.fonts[preset.font] || theme.fonts.body}`;
+      ctx.fillStyle = b.color || preset.color;
+      ctx.font = `${preset.weight} ${px}px ${theme.fonts[b.font || preset.font] || theme.fonts.body}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       if (b.vertical) {
@@ -528,7 +546,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       stampUrl,
       thumbUrl: th.toDataURL('image/png'),
       baseUrl,   // 留住素坯，之后从集邮册回来还能继续编辑
-      texts: texts.map(({ id, content, role, nx, ny, size: s, rotate, vertical }) => ({ id, content, role, x: nx, y: ny, size: s, rotate, vertical })),
+      texts: texts.map(({ id, content, role, font, color, nx, ny, size: s, rotate, vertical }) => ({ id, content, role, font, color, x: nx, y: ny, size: s, rotate, vertical })),
       postmarks: postmarks.map(({ id, nx, ny, rot, opacity, color, date, year }) => ({ id, x: nx, y: ny, rotate: rot, opacity, color, date, year })),
     });
   };
@@ -692,7 +710,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
             {ROLE_KEYS.map((r) => (
               <button key={r}
-                onClick={() => patchText(selected.id, { role: r, size: ROLE_PRESETS[r].size })}
+                onClick={() => patchText(selected.id, { role: r, size: ROLE_PRESETS[r].size, font: ROLE_PRESETS[r].font, color: ROLE_PRESETS[r].color })}
                 style={{
                   background: selected.role === r ? theme.gold : 'transparent',
                   color: selected.role === r ? theme.ink : theme.bgLight,
@@ -702,6 +720,44 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
                 {t({ title: 'roleTitle', subtitle: 'roleSubtitle', denom: 'roleDenom', country: 'roleCountry', free: 'roleFree' }[r], lang)}
               </button>
             ))}
+          </div>
+
+          {/* 字体 */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {FONT_CHOICES.map((fc) => {
+              const on = (selected.font || ROLE_PRESETS[selected.role].font) === fc.key;
+              return (
+                <button key={fc.key}
+                  onClick={() => patchText(selected.id, { font: fc.key })}
+                  style={{
+                    background: on ? theme.gold : 'transparent',
+                    color: on ? theme.ink : theme.bgLight,
+                    border: `1px solid ${on ? theme.gold : 'rgba(255,255,255,.3)'}`,
+                    borderRadius: 4, padding: '5px 10px', fontSize: 13, cursor: 'pointer',
+                    whiteSpace: 'nowrap', fontFamily: theme.fonts[fc.key],
+                  }}>
+                  {t(fc.labelKey, lang)}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 颜色 */}
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {TEXT_COLORS.map((c) => {
+              const on = (selected.color || ROLE_PRESETS[selected.role].color) === c;
+              return (
+                <button key={c}
+                  onClick={() => patchText(selected.id, { color: c })}
+                  title={t('textColor', lang)}
+                  style={{
+                    width: 20, height: 20, borderRadius: '50%', padding: 0, cursor: 'pointer',
+                    background: c,
+                    border: on ? `2px solid ${theme.gold}` : '2px solid rgba(255,255,255,.22)',
+                    boxShadow: on ? '0 0 0 3px rgba(191,155,48,.3)' : 'inset 0 1px 3px rgba(0,0,0,.45)',
+                  }} />
+              );
+            })}
           </div>
 
           <label style={ctrlLabel}>

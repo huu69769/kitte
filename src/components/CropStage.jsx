@@ -60,7 +60,7 @@ function punchPerforations(ctx, W, H, opts = {}) {
   ctx.restore();
 }
 
-const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
+const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh', onStateChange }, ref) => {
   const [sizeKey, setSizeKey] = useState('40x30');
   const [nat, setNat] = useState(null);
   const [imgUrl, setImgUrl] = useState(null);
@@ -166,14 +166,48 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
     });
   }, [sizeKey]); // eslint-disable-line
 
-  // 拖拽逻辑
+  // 拖拽 + 双指捏合缩放（Pointer Events 统一处理鼠标和触摸）
   const drag = useRef({ on: false, x: 0, y: 0 });
+  const pointers = useRef(new Map());   // pointerId -> 屏幕坐标
+  const pinch = useRef(null);           // { dist, rel } 捏合起始的指距和缩放比
+
   const onDown = (e) => {
     if (!hasImg) return;
-    drag.current = { on: true, x: e.clientX, y: e.clientY };
-    stageRef.current?.setPointerCapture?.(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    try { stageRef.current?.setPointerCapture?.(e.pointerId); } catch { /* 指针已释放 */ }
+
+    if (pointers.current.size === 2) {
+      // 第二根手指落下 = 进入捏合，单指拖动让位
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = {
+        dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+        rel: view.base ? view.scale / view.base : 1,
+      };
+      drag.current.on = false;
+    } else if (pointers.current.size === 1) {
+      drag.current = { on: true, x: e.clientX, y: e.clientY };
+    }
   };
+
   const onMove = (e) => {
+    if (!hasImg) return;
+    if (pointers.current.has(e.pointerId)) {
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    // 双指捏合：按指距变化缩放，围绕两指中点
+    if (pinch.current && pointers.current.size >= 2) {
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const r = stageRef.current.getBoundingClientRect();
+      zoomAround(
+        pinch.current.rel * (dist / pinch.current.dist),
+        ((a.x + b.x) / 2 - r.left) / stageScale,
+        ((a.y + b.y) / 2 - r.top) / stageScale
+      );
+      return;
+    }
+
     if (!drag.current.on) return;
     // 屏幕位移 ÷ 缩放系数 = 取景台内部位移
     const dx = (e.clientX - drag.current.x) / stageScale,
@@ -182,8 +216,17 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
     drag.current.y = e.clientY;
     setView((v) => clamp({ ...v, tx: v.tx + dx, ty: v.ty + dy }, frame, nat));
   };
-  const onUp = () => {
-    drag.current.on = false;
+
+  const onUp = (e) => {
+    pointers.current.delete(e?.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
+    if (pointers.current.size === 0) {
+      drag.current.on = false;
+    } else {
+      // 还剩一根手指：以它当前位置续上拖动，避免松开一指时画面跳一下
+      const [p] = [...pointers.current.values()];
+      drag.current = { on: true, x: p.x, y: p.y };
+    }
   };
 
   // 滚轮缩放
@@ -265,6 +308,13 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
 
   const zoomRel = view.base ? view.scale / view.base : 1;
 
+  // App 的控制面板（上传按钮文案 / 尺寸高亮 / 缩放滑块）要用这几个值渲染。
+  // App 从 ref 读是读不到更新的——ref 变化不触发重渲染，滑块会一直卡在
+  // 首次渲染时的 disabled。所以状态变化主动推上去。PRD 原则 3：显示与计算同源。
+  useEffect(() => {
+    onStateChange?.({ hasImg, sizeKey, zoomRel });
+  }, [hasImg, sizeKey, zoomRel, onStateChange]);
+
   return (
     <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
       {/* 取景舞台（外层按比例占位，内层保持 380 内部坐标系）*/}
@@ -274,6 +324,7 @@ const CropStage = forwardRef(({ onPress, hideControls, lang = 'zh' }, ref) => {
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerUp={onUp}
+        onPointerCancel={onUp}
         onWheel={onWheel}
         style={{
           position: 'relative',

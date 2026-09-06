@@ -17,6 +17,8 @@ function App() {
   const [lang, setLang] = useState('zh');
   const [view, setView] = useState('press');   // 'press' | 'desk'
   const [deskStamp, setDeskStamp] = useState(null);
+  // CropStage 的状态镜像：控制面板要用它渲染，不能从 ref 读（ref 不触发重渲染）
+  const [cropState, setCropState] = useState({ hasImg: false, sizeKey: '40x30', zoomRel: 1 });
   const [albumLayout, setAlbumLayout] = useState({});   // 集邮册摆放位置，跨工作台往返保留
   const cropRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -249,7 +251,7 @@ function App() {
               color: theme.ink,
             }}
           >
-            {cropRef.current?.hasImg ? t('changePhoto', lang) : t('uploadPhoto', lang)}
+            {cropState.hasImg ? t('changePhoto', lang) : t('uploadPhoto', lang)}
           </button>
           <input
             ref={fileInputRef}
@@ -269,7 +271,7 @@ function App() {
                 { key: '35x35', label: t('square', lang), w: 35, h: 35 },
                 { key: '70x50', label: t('large', lang), w: 70, h: 50 },
               ].map((s) => {
-                const active = s.key === cropRef.current?.sizeKey;
+                const active = s.key === cropState.sizeKey;
                 return (
                   <button
                     key={s.key}
@@ -306,15 +308,15 @@ function App() {
               min={1}
               max={4}
               step={0.01}
-              value={cropRef.current?.zoomRel || 1}
+              value={cropState.zoomRel}
               onChange={(e) => cropRef.current?.onZoomSlider(e)}
-              disabled={!cropRef.current?.hasImg}
-              style={{ width: '100%', accentColor: theme.accent, opacity: cropRef.current?.hasImg ? 1 : 0.5 }}
+              disabled={!cropState.hasImg}
+              style={{ width: '100%', accentColor: theme.accent, opacity: cropState.hasImg ? 1 : 0.5 }}
             />
           </div>
         </div>
 
-        <CropStage ref={cropRef} onPress={handleMachinePress} hideControls lang={lang} />
+        <CropStage ref={cropRef} onPress={handleMachinePress} hideControls lang={lang} onStateChange={setCropState} />
         <StampPressMachine cropRef={cropRef} onPress={handleMachinePress} />
       </div>
 

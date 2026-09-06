@@ -4,7 +4,7 @@ import { ASSET, FONTS, PAPER_TYPES } from './assets';
 const MINCHO = '"Cormorant Garamond", "Noto Serif SC", "Songti SC", "SimSun", serif';
 const NOUVEAU = '"Italiana", "Noto Serif SC", "Songti SC", "SimSun", serif';
 const TYPEWRITER = '"Special Elite", "Noto Serif SC", "Songti SC", "SimSun", monospace';
-const BRUSH = '"Ma Shan Zheng", "KaiTi", "STKaiti", "Noto Serif SC", cursive';
+const GOTHIC = '"PingFang SC", "Hiragino Sans", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif';
 
 // 缪夏 / Art Nouveau — 新艺术运动装饰风格
 // 配色取自缪夏海报：陈旧象牙底、鼠尾草绿、金赭、陈玫瑰、藤蔓深褐
@@ -52,7 +52,7 @@ export const muchaTheme = {
 
   // 字体配置
   // 四套排版字体一律「拉丁 + CJK」配对：CSS 按字符逐个 fallback，
-  // 拉丁走花体/打字机，汉字走宋体/楷书。只写拉丁字体的话
+  // 拉丁走花体/打字机，汉字走宋体。只写拉丁字体的话
   // （Italiana / Cormorant / Special Elite 都没有 CJK 字形）
   // 中日文会一路掉到系统默认字体，等于没生效。
   fonts: {
@@ -60,12 +60,12 @@ export const muchaTheme = {
     mincho: MINCHO,
     nouveau: NOUVEAU,
     type: TYPEWRITER,
-    brush: BRUSH,
+    gothic: GOTHIC,
     // 旧名保留为别名
     serif: MINCHO,
     display: NOUVEAU,
     mono: TYPEWRITER,
-    kai: BRUSH,
+    kai: GOTHIC,
   },
 
   // 素材位（从 assets.js 导入，可随时替换）

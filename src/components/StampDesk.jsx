@@ -44,7 +44,7 @@ const FONT_CHOICES = [
   { key: 'mincho', labelKey: 'fontMincho' },
   { key: 'nouveau', labelKey: 'fontNouveau' },
   { key: 'type', labelKey: 'fontType' },
-  { key: 'brush', labelKey: 'fontBrush' },
+  { key: 'gothic', labelKey: 'fontGothic' },
 ];
 
 // 可选文字颜色
@@ -59,7 +59,7 @@ const ROLE_PRESETS = {
   subtitle: { size: 38, weight: 600, font: 'mincho', color: theme.ink, letter: 1 },
   denom: { size: 74, weight: 700, font: 'mincho', color: theme.stamp.red, letter: 0 },
   country: { size: 30, weight: 600, font: 'type', color: theme.ink, letter: 6 },
-  free: { size: 40, weight: 500, font: 'brush', color: theme.ink, letter: 0 },
+  free: { size: 40, weight: 500, font: 'gothic', color: theme.ink, letter: 0 },
 };
 const ROLE_KEYS = ['title', 'subtitle', 'denom', 'country', 'free'];
 

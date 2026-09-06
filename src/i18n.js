@@ -69,7 +69,7 @@ const translations = {
     fontMincho: '宋体',
     fontNouveau: '新艺术',
     fontType: '打字机',
-    fontBrush: '楷书',
+    fontGothic: '黑体',
     textColor: '颜色',
   },
   ja: {
@@ -142,7 +142,7 @@ const translations = {
     fontMincho: '明朝',
     fontNouveau: 'アール・ヌーヴォー',
     fontType: 'タイプ',
-    fontBrush: '楷書',
+    fontGothic: 'ゴシック',
     textColor: '色',
   },
 };

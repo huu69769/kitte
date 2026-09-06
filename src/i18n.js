@@ -70,6 +70,7 @@ const translations = {
     fontNouveau: '新艺术',
     fontType: '打字机',
     fontGothic: '黑体',
+    fontPlayfair: 'Playfair Display',
     textColor: '颜色',
   },
   ja: {
@@ -143,6 +144,7 @@ const translations = {
     fontNouveau: 'アール・ヌーヴォー',
     fontType: 'タイプ',
     fontGothic: 'ゴシック',
+    fontPlayfair: 'Playfair Display',
     textColor: '色',
   },
 };

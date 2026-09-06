@@ -4,6 +4,7 @@ import { ASSET, FONTS, PAPER_TYPES } from './assets';
 const MINCHO = '"Cormorant Garamond", "Noto Serif SC", "Songti SC", "SimSun", serif';
 const NOUVEAU = '"Italiana", "Noto Serif SC", "Songti SC", "SimSun", serif';
 const TYPEWRITER = '"Special Elite", "Noto Serif SC", "Songti SC", "SimSun", monospace';
+const PLAYFAIR = '"Playfair Display", "Noto Serif SC", "Songti SC", "SimSun", serif';
 const GOTHIC = '"PingFang SC", "Hiragino Sans", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif';
 
 // 缪夏 / Art Nouveau — 新艺术运动装饰风格
@@ -61,6 +62,7 @@ export const muchaTheme = {
     nouveau: NOUVEAU,
     type: TYPEWRITER,
     gothic: GOTHIC,
+    playfair: PLAYFAIR,
     // 旧名保留为别名
     serif: MINCHO,
     display: NOUVEAU,

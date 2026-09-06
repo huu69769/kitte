@@ -45,6 +45,7 @@ const FONT_CHOICES = [
   { key: 'nouveau', labelKey: 'fontNouveau' },
   { key: 'type', labelKey: 'fontType' },
   { key: 'gothic', labelKey: 'fontGothic' },
+  { key: 'playfair', labelKey: 'fontPlayfair' },
 ];
 
 // 可选文字颜色

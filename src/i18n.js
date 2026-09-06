@@ -71,6 +71,9 @@ const translations = {
     fontType: '打字机',
     fontGothic: '黑体',
     fontPlayfair: 'Playfair Display',
+    weightLight: '细',
+    weightMid: '中',
+    weightBold: '粗',
     textColor: '颜色',
   },
   ja: {
@@ -145,6 +148,9 @@ const translations = {
     fontType: 'タイプ',
     fontGothic: 'ゴシック',
     fontPlayfair: 'Playfair Display',
+    weightLight: '細',
+    weightMid: '中',
+    weightBold: '太',
     textColor: '色',
   },
 };

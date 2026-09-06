@@ -48,6 +48,13 @@ const FONT_CHOICES = [
   { key: 'playfair', labelKey: 'fontPlayfair' },
 ];
 
+// 可选字重（Playfair / 宋体有真字重；Italiana、Special Elite 只有一档，浏览器会合成）
+const WEIGHTS = [
+  { v: 400, labelKey: 'weightLight' },
+  { v: 700, labelKey: 'weightMid' },
+  { v: 900, labelKey: 'weightBold' },
+];
+
 // 可选文字颜色
 const TEXT_COLORS = [
   theme.ink, theme.stamp.red, theme.indigo,
@@ -56,11 +63,11 @@ const TEXT_COLORS = [
 
 // 文字角色预设（字号为 REF 单位）——只是新建时的默认值，字体和颜色都可以再改
 const ROLE_PRESETS = {
-  title: { size: 62, weight: 700, font: 'nouveau', color: theme.ink, letter: 2 },
-  subtitle: { size: 38, weight: 600, font: 'mincho', color: theme.ink, letter: 1 },
-  denom: { size: 74, weight: 700, font: 'mincho', color: theme.stamp.red, letter: 0 },
-  country: { size: 30, weight: 600, font: 'type', color: theme.ink, letter: 6 },
-  free: { size: 40, weight: 500, font: 'gothic', color: theme.ink, letter: 0 },
+  title: { size: 62, weight: 900, font: 'nouveau', color: theme.ink, letter: 2 },
+  subtitle: { size: 38, weight: 700, font: 'mincho', color: theme.ink, letter: 1 },
+  denom: { size: 74, weight: 900, font: 'mincho', color: theme.stamp.red, letter: 0 },
+  country: { size: 30, weight: 700, font: 'type', color: theme.ink, letter: 6 },
+  free: { size: 40, weight: 700, font: 'gothic', color: theme.ink, letter: 0 },
 };
 const ROLE_KEYS = ['title', 'subtitle', 'denom', 'country', 'free'];
 
@@ -243,7 +250,7 @@ function TextBlock({ block, stageW, stageH, selected, editing, onStartDrag, onSe
     backfaceVisibility: 'hidden',
     fontFamily: family,
     fontSize: px,
-    fontWeight: preset.weight,
+    fontWeight: block.weight || preset.weight,
     color: block.color || preset.color,
     letterSpacing: preset.letter * k,
     whiteSpace: 'nowrap',
@@ -308,7 +315,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
   // 从集邮册回来重编辑时，把存下的戳和字还原成可拖可改的图层
   const [texts, setTexts] = useState(() =>
     (stamp?.texts || []).map((x) => ({
-      id: x.id, content: x.content, role: x.role, font: x.font, color: x.color,
+      id: x.id, content: x.content, role: x.role, font: x.font, color: x.color, weight: x.weight,
       nx: x.x, ny: x.y, size: x.size, rotate: x.rotate, vertical: x.vertical,
     })));
   const [postmarks, setPostmarks] = useState(() =>
@@ -380,6 +387,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
           size: ROLE_PRESETS.free.size,
           font: ROLE_PRESETS.free.font,
           color: ROLE_PRESETS.free.color,
+          weight: ROLE_PRESETS.free.weight,
           rotate: 0,
           vertical: false,
         }]);
@@ -519,7 +527,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       ctx.translate(b.nx * W, b.ny * H);
       ctx.rotate((b.rotate * Math.PI) / 180);
       ctx.fillStyle = b.color || preset.color;
-      ctx.font = `${preset.weight} ${px}px ${theme.fonts[b.font || preset.font] || theme.fonts.body}`;
+      ctx.font = `${b.weight || preset.weight} ${px}px ${theme.fonts[b.font || preset.font] || theme.fonts.body}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       if (b.vertical) {
@@ -547,7 +555,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
       stampUrl,
       thumbUrl: th.toDataURL('image/png'),
       baseUrl,   // 留住素坯，之后从集邮册回来还能继续编辑
-      texts: texts.map(({ id, content, role, font, color, nx, ny, size: s, rotate, vertical }) => ({ id, content, role, font, color, x: nx, y: ny, size: s, rotate, vertical })),
+      texts: texts.map(({ id, content, role, font, color, weight, nx, ny, size: s, rotate, vertical }) => ({ id, content, role, font, color, weight, x: nx, y: ny, size: s, rotate, vertical })),
       postmarks: postmarks.map(({ id, nx, ny, rot, opacity, color, date, year }) => ({ id, x: nx, y: ny, rotate: rot, opacity, color, date, year })),
     });
   };
@@ -711,7 +719,7 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
             {ROLE_KEYS.map((r) => (
               <button key={r}
-                onClick={() => patchText(selected.id, { role: r, size: ROLE_PRESETS[r].size, font: ROLE_PRESETS[r].font, color: ROLE_PRESETS[r].color })}
+                onClick={() => patchText(selected.id, { role: r, size: ROLE_PRESETS[r].size, font: ROLE_PRESETS[r].font, color: ROLE_PRESETS[r].color, weight: ROLE_PRESETS[r].weight })}
                 style={{
                   background: selected.role === r ? theme.gold : 'transparent',
                   color: selected.role === r ? theme.ink : theme.bgLight,
@@ -738,6 +746,26 @@ export default function StampDesk({ stamp, onFinish, onBack, lang = 'zh' }) {
                     whiteSpace: 'nowrap', fontFamily: theme.fonts[fc.key],
                   }}>
                   {t(fc.labelKey, lang)}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 字重 */}
+          <div style={{ display: 'flex', gap: 6 }}>
+            {WEIGHTS.map((w) => {
+              const on = (selected.weight || ROLE_PRESETS[selected.role].weight) === w.v;
+              return (
+                <button key={w.v}
+                  onClick={() => patchText(selected.id, { weight: w.v })}
+                  style={{
+                    background: on ? theme.gold : 'transparent',
+                    color: on ? theme.ink : theme.bgLight,
+                    border: `1px solid ${on ? theme.gold : 'rgba(255,255,255,.3)'}`,
+                    borderRadius: 4, padding: '5px 10px', fontSize: 12, cursor: 'pointer',
+                    fontWeight: w.v, whiteSpace: 'nowrap',
+                  }}>
+                  {t(w.labelKey, lang)}
                 </button>
               );
             })}
